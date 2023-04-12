@@ -1,0 +1,22 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug server",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "cwd": "${workspaceFolder}/packages/server",
+            "program": "${workspaceFolder}/packages/server/src/index.ts",
+            "preLaunchTask": "Build server with source map",
+            "outFiles": [
+                "${workspaceFolder}/packages/server/ts-build/**/*.js"
+            ]
+        }
+    ]
+}
