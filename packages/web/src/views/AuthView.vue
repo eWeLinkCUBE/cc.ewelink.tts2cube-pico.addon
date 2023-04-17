@@ -3,19 +3,19 @@
     <div class="auth">
         <div class="content">
             <div class="title">
-                <h1>获取网关凭证</h1>
+                <h1>{{ $t('get_gateway_token') }}</h1>
             </div>
             <div class="img"></div>
             <div class="desc">
-                <p>步骤 1：点击下方“获取网关凭证”按钮</p>
-                <p>步骤 2：点击“获取网关凭证”弹窗的允许按钮</p>
+                <p>{{ $t('step_1_click_button') }}</p>
+                <p>{{ $t('step_2_click_button') }}</p>
             </div>
             <div class="btn">
                 <a-button
                     type="primary"
                     class="get-token-btn"
                     @click="getToken"
-                >获取凭证</a-button>
+                >{{ $t('get_token') }}</a-button>
             </div>
         </div>
     </div>

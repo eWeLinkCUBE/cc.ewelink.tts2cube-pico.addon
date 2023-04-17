@@ -27,8 +27,8 @@ export const TAB_LIST = [
 export const useTabStore = defineStore('tab', {
     state: () => {
         return {
-            currentTabName: TAB_NAME_SETTINGS,
-        }
+            currentTabName: TAB_NAME_SETTINGS,  // 当前功能 tab 名称
+        };
     },
     actions: {
         setCurrentTabName(tabName: string) {
