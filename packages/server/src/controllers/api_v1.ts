@@ -1,17 +1,5 @@
 import express from 'express';
 import logger from '../logger';
-import CubeApi from '../ewelink-cube-api/src';
-import { EWELINK_CUBE_HOSTNAME } from '../const';
-
-const IhostApiClient = CubeApi.ihostApi;
-const ihostApiClient = new IhostApiClient({ ip: EWELINK_CUBE_HOSTNAME });
-ihostApiClient.getBridgeAT({ timeout: 300000 })
-    .then((data) => {
-        console.log(data);
-    })
-    .catch((err) => {
-        console.error(err);
-    });
 
 const apiv1 = express.Router();
 
