@@ -1,3 +1,2 @@
-export const host = '0.0.0.0';
-export const port = 3000;
-export const hello = 'world';
+export const SERVER_LISTEN_HOST = '0.0.0.0';
+export const SERVER_LISTEN_PORT = 8080;
