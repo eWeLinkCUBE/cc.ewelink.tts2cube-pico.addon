@@ -3,10 +3,11 @@ import {
     Response,
     NextFunction
 } from 'express';
+import logger from '../logger';
 
 // Log middleware
 const log = (req: Request, res: Response, next: NextFunction) => {
-    console.log('hello log middle');
+    logger.info('(middleware.log) started');
     next();
 };
 

@@ -1,2 +1,5 @@
 /dist
 /ts-build
+
+/.env
+/*.log

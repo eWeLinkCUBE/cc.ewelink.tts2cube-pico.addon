@@ -3,10 +3,11 @@ import {
     Response,
     NextFunction
 } from 'express';
+import logger from '../logger';
 
 // Sign middleware
 const auth = (req: Request, res: Response, next: NextFunction) => {
-    console.log('hello sign middle');
+    logger.info('(middleware.auth) started');
     next();
 };
 

@@ -16,7 +16,8 @@
             "preLaunchTask": "Build server with source map",
             "outFiles": [
                 "${workspaceFolder}/packages/server/ts-build/**/*.js"
-            ]
+            ],
+            "envFile": "${workspaceFolder}/packages/server/.env"
         }
     ]
 }
