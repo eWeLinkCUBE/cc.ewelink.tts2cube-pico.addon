@@ -1,5 +1,9 @@
 import { createApp } from 'vue';
-import { Button } from 'ant-design-vue';
+import {
+    Button,
+    Table,
+    ConfigProvider
+} from 'ant-design-vue';
 
 import App from './App.vue';
 import pinia from './stores';
@@ -14,5 +18,7 @@ app.use(pinia);
 app.use(router);
 app.use(i18n);
 app.use(Button);
+app.use(Table);
+app.use(ConfigProvider);
 
 app.mount('#app');

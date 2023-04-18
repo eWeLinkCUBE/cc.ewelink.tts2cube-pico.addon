@@ -1,12 +1,18 @@
 <!-- 页面入口 -->
 <template>
-    <RouterView />
+    <a-config-provider :locale="antdLocale">
+        <RouterView />
+    </a-config-provider>
 </template>
 
 <script lang="ts" setup>
+import { ref } from 'vue';
 import { RouterView } from 'vue-router';
 import queryString from 'query-string';
 import _ from 'lodash';
+import zhCN from 'ant-design-vue/es/locale/zh_CN';
+import enUS from 'ant-design-vue/es/locale/en_US';
+
 import { useLanguageStore } from '@/stores/language';
 import i18n from '@/i18n';
 
@@ -32,10 +38,21 @@ const initLanguage = () => {
     } else {
         currentLanguage = 'en-us';
     }
+
+    // 设置语言
     languageStore.setLanguage(currentLanguage);
     // @ts-ignore
     i18n.global.locale = currentLanguage;
+
+    return currentLanguage;
 };
 
-initLanguage();
+// 设置 ant-design-vue 的国际化
+const language = ref(initLanguage());
+const antdLocale = ref();
+if (language.value === 'zh-cn') {
+    antdLocale.value = zhCN;
+} else {
+    antdLocale.value = enUS;
+}
 </script>

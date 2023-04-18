@@ -2,21 +2,31 @@
 <template>
     <div class="desc-title">
         <h1>{{ props.header }}</h1>
-        <p>{{ props.description }}</p>
+        <p v-if="props.description">{{ props.description }}</p>
     </div>
 </template>
 
 <script lang="ts" setup>
 const props = defineProps<{
     header: string;
-    description: string;
+    description?: string;
 }>()
 </script>
 
 <style lang="scss" scoped>
 .desc-title {
     h1 {
-        font-size: 18px;
+        font-size: 16px;
+        color: #424242;
+        margin: 0;
+    }
+
+    p {
+        font-size: 14px;
+        color: #424242;
+        opacity: 0.5;
+        margin-top: 2px;
+        margin-bottom: 0;
     }
 }
 </style>

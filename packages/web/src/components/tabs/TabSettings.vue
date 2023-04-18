@@ -1,7 +1,7 @@
 <!-- 设置栏 -->
 <template>
     <div class="tab-settings">
-        <DescTitle header="Settings" description="Settings desc" />
+        <DescTitle header="Settings" />
     </div>
 </template>
 
