@@ -29,11 +29,11 @@
 
                     <!-- 操作栏 -->
                     <template v-else-if="column.dataIndex === 'operation'">
-                        <span>播放</span>
+                        <PlayAudioBtn :audio-url="record.url" />
                         |
-                        <span>下载</span>
+                        <span @click="() => downloadAudio(record.id)">下载</span>
                         |
-                        <span>删除</span>
+                        <span @click="() => removeAudio(record.id)">删除</span>
                     </template>
                 </template>
             </a-table>
@@ -46,14 +46,9 @@ import { ref, onMounted, reactive } from 'vue';
 import { saveAs } from 'file-saver';
 import { CheckOutlined, EditOutlined } from '@ant-design/icons-vue';
 import _ from 'lodash';
-import { useSound } from '@vueuse/sound';
 import DescTitle from '@/components/DescTitle.vue';
+import PlayAudioBtn from '@/components/PlayAudioBtn.vue';
 import { getAudioList } from '@/api';
-
-
-// const download = () => {
-    // saveAs('http://127.0.0.1:8080/_audio/audio1.mp3', 'audio1.mp3');
-// };
 
 // 表格栏配置
 const columns = [
@@ -90,7 +85,8 @@ const tableData = ref<{
     time: string;
     url: string;
 
-    // 以下数据由播放操作生成
+    // 以下数据由后续操作生成
+    soundData: any;
 }[]>([]);
 
 // 可编辑数据
@@ -106,6 +102,21 @@ const saveCell = (key: any) => {
 // 编辑单元格
 const editCell = (key: any) => {
     editableData[key] = _.cloneDeep(tableData.value.filter((item) => item.key === key)[0]);
+};
+
+// 下载音频文件
+const downloadAudio = (id: string) => {
+    const i = _.findIndex(tableData.value, { id });
+    if (i === -1) {
+        console.warn(`audio id ${id} not found`);
+    }
+    const audio = tableData.value[i];
+    saveAs(audio.url, audio.filename);
+};
+
+// 删除音频文件
+const removeAudio = (id: string) => {
+    console.log('remove audio', id);
 };
 
 onMounted(async () => {
