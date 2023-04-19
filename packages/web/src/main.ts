@@ -2,7 +2,8 @@ import { createApp } from 'vue';
 import {
     Button,
     Table,
-    ConfigProvider
+    ConfigProvider,
+    Input
 } from 'ant-design-vue';
 
 import App from './App.vue';
@@ -20,5 +21,6 @@ app.use(i18n);
 app.use(Button);
 app.use(Table);
 app.use(ConfigProvider);
+app.use(Input);
 
 app.mount('#app');

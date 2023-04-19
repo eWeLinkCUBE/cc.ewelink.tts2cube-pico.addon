@@ -25,6 +25,10 @@ if (process.env.ENABLE_MIDDLEWARE_AUTH === '1') {
 
 // Serve web static files.
 server.use(express.static(path.join(process.cwd(), 'public')));
+
+// Serve audio static files.
+server.use('/_audio', express.static(path.join(process.cwd(), 'audio')));
+
 server.use(apiv1);
 
 // Init eWeLink Cube API.

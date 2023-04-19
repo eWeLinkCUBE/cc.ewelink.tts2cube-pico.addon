@@ -2,7 +2,7 @@
 <template>
     <div class="home">
         <!-- TODO: not for demo version -->
-        <SwitchBox />
+        <!-- <SwitchBox /> -->
         <component :is="tabComponent.component" />
     </div>
 </template>
@@ -10,7 +10,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 // TODO: not for demo version
-import SwitchBox from '@/components/SwitchBox.vue';
+// import SwitchBox from '@/components/SwitchBox.vue';
 import { useTabStore, TAB_LIST } from '@/stores/tab';
 
 const tabStore = useTabStore();
