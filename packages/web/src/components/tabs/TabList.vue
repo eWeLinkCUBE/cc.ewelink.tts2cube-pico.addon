@@ -84,9 +84,6 @@ const tableData = ref<{
     config: string;
     time: string;
     url: string;
-
-    // 以下数据由后续操作生成
-    soundData: any;
 }[]>([]);
 
 // 可编辑数据

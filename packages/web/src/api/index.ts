@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+// TODO: update host
 const API_HOST = '127.0.0.1';
 const API_PORT = 8080;
 const API_BASEURL = `http://${API_HOST}:${API_PORT}/api/v1`;

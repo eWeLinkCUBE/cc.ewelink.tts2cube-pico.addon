@@ -5,8 +5,11 @@ const apiv1 = express.Router();
 
 // Get server information
 apiv1.get('/api/v1/get-server-info', (req, res) => {
-    logger.info('get server info');
-    res.send('hello server info');
+    const result = {
+        cubeTokenValid: true
+    };
+    res.send({ error: 0, data: result, msg: 'Success' });
+    return;
 });
 
 // Get eWeLink Cube token
