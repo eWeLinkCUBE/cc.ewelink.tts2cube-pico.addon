@@ -21,6 +21,18 @@ export async function setCubeToken(token: string) {
     await tokenStore.set('cubeToken', data);
 }
 
-export async function getCubeToken(): Promise<{ token: string; updateTime: number; }> {
+export async function getCubeToken(): Promise<{ token: string; updateTime: number; } | undefined> {
     return await tokenStore.get('cubeToken');
+}
+
+export async function setTtsEngineId(id: string) {
+    const data = {
+        id,
+        updateTime: Date.now()
+    };
+    await tokenStore.set('ttsEngineId', data);
+}
+
+export async function getTtsEngineId(): Promise<{ token: string; updateTime: number; }> {
+    return await tokenStore.get('ttsEngineId');
 }

@@ -230,6 +230,16 @@ export default abstract class baseClass {
 	}
 
 	/**
+	 * 获取已注册 TTS 引擎列表
+	 */
+	async getTtsEngineList() {
+		return await this.httpRequest({
+			path: EPath.TTS_ENGINE,
+			method: EMethod.GET
+		})
+	}
+
+	/**
 	 * 设备状态更新上报
 	 */
 	async uploadDeviceState(

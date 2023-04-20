@@ -1,21 +1,101 @@
 import express from 'express';
 import logger from '../logger';
+import {
+    getCubeBridgeAt,
+    getCubeDeviceList,
+    getCubeTtsEngineList,
+    registerCubeTtsEngine
+} from '../api/cube';
+import { getCubeToken } from '../store/token';
+import {
+    ERR_SUCCESS,
+    ERR_SERVER_INTERNAL
+} from '../error';
 
 const apiv1 = express.Router();
 
 // Get server information
-apiv1.get('/api/v1/get-server-info', (req, res) => {
+apiv1.get('/api/v1/get-server-info', async (req, res) => {
     const result = {
-        cubeTokenValid: true
+        error: 0,
+        data: {
+            cubeTokenValid: false
+        },
+        msg: 'Success'
     };
-    res.send({ error: 0, data: result, msg: 'Success' });
-    return;
+
+    try {
+        // 1. Check token existence.
+        const token = await getCubeToken();
+        if (!token) {
+            console.warn('no token');
+            res.send(result);
+            return;
+        }
+
+        // 2. Check token validation.
+        const devListRes = await getCubeDeviceList();
+        if (devListRes.error !== ERR_SUCCESS) {
+            console.warn('token unvalid');
+            res.send(result);
+            return;
+        }
+
+        result.data.cubeTokenValid = true;
+        res.send(result);
+        return;
+    } catch (err) {
+        console.error(err);
+        result.error = ERR_SERVER_INTERNAL;
+        result.msg = 'Server error'
+        res.send(result);
+        return;
+    }
 });
 
 // Get eWeLink Cube token
-apiv1.get('/api/v1/get-cube-token', (req, res) => {
-    logger.info('get cube token');
-    res.send('hello cube token');
+apiv1.get('/api/v1/get-cube-token', async (req, res) => {
+    const result = {
+        error: 0,
+        data: {},
+        msg: 'Success'
+    };
+
+    try {
+        // 1. Call getBridgeAt API.
+        const atRes = await getCubeBridgeAt();
+        if (atRes.error !== ERR_SUCCESS) {
+            console.warn('get at failed');
+            res.send(result);
+            return;
+        }
+
+        // 2. Check TTS engine register status.
+        const engineRes = await getCubeTtsEngineList();
+        if (engineRes.error !== ERR_SUCCESS) {
+            console.warn('get list failed');
+            res.send(result);
+            return;
+        }
+
+        // 3. If no register, then do it.
+        // TODO: check register status
+        const regRes = await registerCubeTtsEngine();
+        if (regRes.error !== ERR_SUCCESS) {
+            console.warn('reg failed');
+            res.send(result);
+            return;
+        }
+
+        res.send(result);
+        return;
+    } catch (err) {
+        console.error(err);
+        result.error = ERR_SERVER_INTERNAL;
+        result.msg = 'Server error';
+        res.send(result);
+        return;
+    }
 });
 
 // Get audio list

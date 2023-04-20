@@ -22,8 +22,10 @@
 </template>
 
 <script lang="ts" setup>
-const getToken = () => {
-    console.log('get token');
+import { getCubeToken } from '@/api';
+
+const getToken = async () => {
+    await getCubeToken();
 };
 </script>
 

@@ -19,6 +19,9 @@ enum EPath {
 	//	third-party
 	THIRD_PARTY = '/thirdparty/event',
 
+	// TTS engine
+	TTS_ENGINE = '/tts/engines',
+
 	//	debug-log
 	DEBUG_LOG = '/thirdparty/debug-log'
 }
