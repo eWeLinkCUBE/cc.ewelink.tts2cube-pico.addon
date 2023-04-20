@@ -24,6 +24,10 @@ apiv1.get('/api/v1/get-server-info', async (req, res) => {
         msg: 'Success'
     };
 
+    result.data.cubeTokenValid = true;
+    res.send(result);
+    return;
+
     try {
         // 1. Check token existence.
         const token = await getCubeToken();

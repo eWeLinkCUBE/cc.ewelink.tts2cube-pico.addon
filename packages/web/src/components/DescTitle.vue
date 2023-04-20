@@ -15,6 +15,8 @@ const props = defineProps<{
 
 <style lang="scss" scoped>
 .desc-title {
+    padding: 20px 15px;
+
     h1 {
         font-size: 16px;
         color: #424242;

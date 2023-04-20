@@ -1,12 +1,15 @@
-// TODO: update key name
-
 // 英语
 const enUS = {
     'get_gateway_token': 'Get gateway token',
-    'step_1_click_button': 'Step 1: click button',
-    'step_2_click_button': 'Step 2: click button',
+    'step_1_click_get_token_button': 'Step 1: Click "Get iHost access token" below.',
+    'step_2_confirm_token_popup': 'Step 2: Confirm "Get iHost access token" on the pop-up.',
     'get_token': 'Get token',
-    'audio_file': 'Audio file'
+    'audio_file': 'Audio files',
+    'file_name': 'Name',
+    'text': 'Text',
+    'configuration': 'Configuration',
+    'created_time': 'Created',
+    'operation': 'Action'
 };
 
 export default enUS;

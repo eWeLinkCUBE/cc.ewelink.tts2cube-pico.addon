@@ -14,7 +14,6 @@
                         <div class="editable-cell">
                             <!-- 点击保存按钮保存 -->
                             <div v-if="editableData[record.key]" class="editable-cell-input-wrapper">
-                                <span>{{ record }}</span>
                                 <a-input v-model:value="editableData[record.key].filename" @pressEnter="() => saveCell(record.key)" />
                                 <check-outlined class="editable-cell-icon-check" @click="() => saveCell(record.key)" />
                             </div>
@@ -29,11 +28,9 @@
 
                     <!-- 操作栏 -->
                     <template v-else-if="column.dataIndex === 'operation'">
-                        <PlayAudioBtn :audio-url="record.url" />
-                        |
-                        <span @click="() => downloadAudio(record.id)">下载</span>
-                        |
-                        <span @click="() => removeAudio(record.id)">删除</span>
+                        <PlayAudioBtn class="operation-icon" :audio-url="record.url" />
+                        <img class="operation-icon" @click="() => downloadAudio(record.id)" src="@/assets/download.png" alt="download icon">
+                        <img class="operation-icon" @click="() => removeAudio(record.id)" src="@/assets/delete.png" alt="delete icon">
                     </template>
                 </template>
             </a-table>
@@ -49,27 +46,29 @@ import _ from 'lodash';
 import DescTitle from '@/components/DescTitle.vue';
 import PlayAudioBtn from '@/components/PlayAudioBtn.vue';
 import { getAudioList } from '@/api';
+import i18n from '@/i18n';
 
 // 表格栏配置
 const columns = [
     {
-        title: '文件名称',
-        dataIndex: 'filename'
+        title: i18n.global.t('file_name'),
+        dataIndex: 'filename',
+        width: '25%'
     },
     {
-        title: '文本',
+        title: i18n.global.t('text'),
         dataIndex: 'text'
     },
     {
-        title: '配置',
+        title: i18n.global.t('configuration'),
         dataIndex: 'config'
     },
     {
-        title: '时间',
+        title: i18n.global.t('created_time'),
         dataIndex: 'time'
     },
     {
-        title: '操作',
+        title: i18n.global.t('operation'),
         dataIndex: 'operation'
     }
 ];
@@ -140,7 +139,53 @@ onMounted(async () => {
 <style lang="scss" scoped>
 .tab-list {
     .table {
-        margin-top: 20px;
+
+        .operation-icon:not(:last-child) {
+            width: 27px;
+            height: 27px;
+            margin-right: 20px;
+        }
     }
+}
+
+.editable-cell {
+  position: relative;
+  .editable-cell-input-wrapper,
+  .editable-cell-text-wrapper {
+    padding-right: 24px;
+  }
+
+  .editable-cell-text-wrapper {
+    padding: 5px 24px 5px 5px;
+  }
+
+  .editable-cell-icon,
+  .editable-cell-icon-check {
+    position: absolute;
+    right: 0;
+    width: 20px;
+    cursor: pointer;
+  }
+
+  .editable-cell-icon {
+    margin-top: 4px;
+    display: none;
+  }
+
+  .editable-cell-icon-check {
+    line-height: 28px;
+  }
+
+  .editable-cell-icon:hover,
+  .editable-cell-icon-check:hover {
+    color: #108ee9;
+  }
+
+  .editable-add-btn {
+    margin-bottom: 8px;
+  }
+}
+.editable-cell:hover .editable-cell-icon {
+  display: inline-block;
 }
 </style>

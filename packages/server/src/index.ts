@@ -27,6 +27,8 @@ if (process.env.ENABLE_MIDDLEWARE_AUTH === '1') {
 server.use(express.static(path.join(process.cwd(), 'public')));
 
 // Serve audio static files.
+// TODO: demo version use cwd dir store audio files.
+// prod version use CONFIG_DATA_PATH dir.
 server.use('/_audio', express.static(path.join(process.cwd(), 'audio')));
 
 server.use(apiv1);

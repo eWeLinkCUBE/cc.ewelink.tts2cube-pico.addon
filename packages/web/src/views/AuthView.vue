@@ -7,8 +7,8 @@
             </div>
             <div class="img"></div>
             <div class="desc">
-                <p>{{ $t('step_1_click_button') }}</p>
-                <p>{{ $t('step_2_click_button') }}</p>
+                <p>{{ $t('step_1_click_get_token_button') }}</p>
+                <p>{{ $t('step_2_confirm_token_popup') }}</p>
             </div>
             <div class="btn">
                 <a-button
