@@ -222,6 +222,11 @@ apiv1.delete('/api/v1/audio', async (req, res) => {
                 res.send(result);
                 return;
             } else {
+                // Remove real file.
+                const dirname = path.join(process.env.CONFIG_DATA_PATH as string, AUDIO_FILES_DIR);
+                await fs.unlink(path.join(dirname, audioList[i].filename));
+
+                // Remove store data.
                 audioList.splice(i, 1);
                 await setAudioList(audioList);
                 res.send(result);
