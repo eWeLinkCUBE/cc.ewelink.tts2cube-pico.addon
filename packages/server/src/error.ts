@@ -27,3 +27,18 @@ export const ERR_REG_ENGINE = 4;
  * Server internal error
  */
 export const ERR_SERVER_INTERNAL = 5;
+
+/**
+ * No audio ID error
+ */
+export const ERR_NO_AUDIO_ID = 6;
+
+/**
+ * Audio file not found
+ */
+export const ERR_AUDIO_NOT_FOUND = 7;
+
+/**
+ * No audio filename
+ */
+export const ERR_NO_AUDIO_FILENAME = 8;

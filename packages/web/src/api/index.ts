@@ -35,3 +35,29 @@ export async function getCubeToken() {
         url
     });
 }
+
+export async function removeAudioItem(id: string) {
+    const url = '/audio';
+    return await axios({
+        method: 'DELETE',
+        baseURL: API_BASEURL,
+        url,
+        params: {
+            id
+        }
+    });
+}
+
+export async function updateAudioItem(params: { id: string; filename: string}) {
+    const { id, filename } = params;
+    const url = '/audio';
+    return await axios({
+        method: 'PUT',
+        baseURL: API_BASEURL,
+        url,
+        data: {
+            id,
+            filename
+        }
+    });
+}

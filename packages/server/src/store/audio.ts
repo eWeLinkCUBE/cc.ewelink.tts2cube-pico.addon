@@ -5,7 +5,7 @@ import { KeyvFile } from 'keyv-file';
 
 const { CONFIG_DATA_PATH } = process.env;
 const AUDIO_FILE = 'audio.json';
-const AUDIO_STORE_FILENAME = CONFIG_DATA_PATH ? path.join(CONFIG_DATA_PATH, AUDIO_FILE) : AUDIO_FILE;
+const AUDIO_STORE_FILENAME = path.join(CONFIG_DATA_PATH as string, AUDIO_FILE);
 
 const audioStore = new Keyv({
     store: new KeyvFile({
@@ -16,9 +16,12 @@ const audioStore = new Keyv({
 export type AudioItem = {
     id: string;
     filename: string;
-    exist?: boolean;
+    text: string;
+    config: string;
+    createdAt: number;
 };
 
+// TODO: call this function when server start
 export async function initAudioStore() {
     const audioList = await getAudioList();
 }

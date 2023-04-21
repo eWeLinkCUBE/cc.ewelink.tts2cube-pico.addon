@@ -6,6 +6,7 @@
             <a-table
                 :data-source="tableData"
                 :columns="columns"
+                :loading="tableLoading"
                 size="middle"
             >
                 <template #bodyCell="{ column, text, record }">
@@ -14,8 +15,8 @@
                         <div class="editable-cell">
                             <!-- 点击保存按钮保存 -->
                             <div v-if="editableData[record.key]" class="editable-cell-input-wrapper">
-                                <a-input v-model:value="editableData[record.key].filename" @pressEnter="() => saveCell(record.key)" />
-                                <check-outlined class="editable-cell-icon-check" @click="() => saveCell(record.key)" />
+                                <a-input v-model:value="editableData[record.key].filename" @pressEnter="() => saveCell(record)" />
+                                <check-outlined class="editable-cell-icon-check" @click="() => saveCell(record)" />
                             </div>
 
                             <!-- 点击编辑按钮进入编辑模式 -->
@@ -45,7 +46,11 @@ import { CheckOutlined, EditOutlined } from '@ant-design/icons-vue';
 import _ from 'lodash';
 import DescTitle from '@/components/DescTitle.vue';
 import PlayAudioBtn from '@/components/PlayAudioBtn.vue';
-import { getAudioList } from '@/api';
+import {
+    getAudioList,
+    updateAudioItem,
+    removeAudioItem
+} from '@/api';
 import i18n from '@/i18n';
 
 // 表格栏配置
@@ -88,9 +93,27 @@ const tableData = ref<{
 // 可编辑数据
 const editableData = reactive({}) as any;
 
+// 表格是否正在加载中
+const tableLoading = ref(false);
+
 // 保存单元格
-const saveCell = (key: any) => {
-    // TODO: 调用保存音频文件名称接口
+const saveCell = async (record: any) => {
+    const key = record.key;
+    if (editableData[key].filename.trim() === '') {
+        return;
+    }
+
+    // 调用更新音频数据接口
+    if (record.filename.trim() !== editableData[key].filename.trim()) {
+        const updateId = record.id;
+        const updateFilename = record.filename;
+        setTimeout(async () => {
+            tableLoading.value = true;
+            await updateAudioItem({ id: updateId, filename: updateFilename });
+            tableLoading.value = false;
+        }, 0);
+    }
+
     Object.assign(tableData.value.filter((item) => item.key === key)[0], editableData[key]);
     delete editableData[key];
 };
@@ -111,8 +134,8 @@ const downloadAudio = (id: string) => {
 };
 
 // 删除音频文件
-const removeAudio = (id: string) => {
-    console.log('remove audio', id);
+const removeAudio = async (id: string) => {
+    await removeAudioItem(id);
 };
 
 onMounted(async () => {

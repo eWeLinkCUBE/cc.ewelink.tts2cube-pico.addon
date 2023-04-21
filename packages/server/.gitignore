@@ -1,6 +1,6 @@
 /dist
 /ts-build
-/audio
+/data
 
 /.env
 /*.log

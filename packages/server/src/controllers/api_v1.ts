@@ -1,4 +1,8 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import process from 'node:process';
 import express from 'express';
+import _ from 'lodash';
 import logger from '../logger';
 import {
     getCubeBridgeAt,
@@ -9,13 +13,30 @@ import {
 import { getCubeToken } from '../store/token';
 import {
     ERR_SUCCESS,
-    ERR_SERVER_INTERNAL
+    ERR_SERVER_INTERNAL,
+    ERR_NO_AUDIO_ID,
+    ERR_AUDIO_NOT_FOUND,
+    ERR_NO_AUDIO_FILENAME
 } from '../error';
+import { AUDIO_FILES_DIR } from '../const';
+import { getAudioList, setAudioList } from '../store/audio';
+
+type ApiGetAudioListItem = {
+    key: number;
+    id: string;
+    filename: string;
+    text: string;
+    config: string;
+    time: string;
+    url: string;
+};
 
 const apiv1 = express.Router();
 
 // Get server information
 apiv1.get('/api/v1/get-server-info', async (req, res) => {
+    logger.info('get server info');
+
     const result = {
         error: 0,
         data: {
@@ -103,55 +124,150 @@ apiv1.get('/api/v1/get-cube-token', async (req, res) => {
 });
 
 // Get audio list
-apiv1.get('/api/v1/audio/list', (req, res) => {
-    // TODO: read audio list data from keyv store.
+apiv1.get('/api/v1/audio/list', async (req, res) => {
+    // TODO: parse URL query params
 
-    // mock data
-    const result = [
-        {
-            key: 0,
-            id: '94e48afb-6848-41ba-bf77-ef8ecdbe47e8',
-            filename: 'audio1.mp3',
-            text: 'super power',
-            config: 'English',
-            time: '2022/04/17',
-            url: 'http://127.0.0.1:8080/_audio/audio1.mp3'
-        },
-        {
-            key: 1,
-            id: '59fb5537-3bcf-4c3b-8e3a-a444adecacd8',
-            filename: 'audio2.mp3',
-            text: 'test audio',
-            config: 'English',
-            time: '2023/01/02',
-            url: 'http://127.0.0.1:8080/_audio/audio2.mp3'
-        },
-        {
-            key: 2,
-            id: 'f5370cd3-9100-4887-a470-0265dff334fa',
-            filename: 'audio3.mp3',
-            text: 'hello world',
-            config: 'English',
-            time: '2023/04/02',
-            url: 'http://127.0.0.1:8080/_audio/audio3.mp3'
+    const result = {
+        error: 0,
+        msg: 'Success',
+        data: {}
+    };
+
+    try {
+        const files = await fs.readdir(path.join(process.env.CONFIG_DATA_PATH as string, AUDIO_FILES_DIR));
+        const audioList = await getAudioList();
+
+        if (!audioList) {
+            res.send(result);
+            return;
+        } else {
+            const parsedAudioList: ApiGetAudioListItem[] = [];
+            for (let i = 0; i < audioList.length; i++) {
+                if (files.includes(audioList[i].filename)) {
+                    parsedAudioList.push({
+                        key: i,
+                        id: audioList[i].id,
+                        filename: audioList[i].filename,
+                        text: audioList[i].text,
+                        config: audioList[i].config,
+                        time: new Date(audioList[i].createdAt).toISOString(),
+                        url: 'http://127.0.0.1:8080/_audio/' + audioList[i].filename,
+                    });
+                }
+            }
+            _.set(result, 'data.audioList', parsedAudioList);
+            res.send(result);
+            return;
         }
-    ];
-
-    // logger.info('get audio list');
-    res.send({ error: 0, data: { audioList: result }, msg: 'Success' });
-    return;
+    } catch (err) {
+        console.error(err);
+        result.error = ERR_SERVER_INTERNAL;
+        result.msg = 'Server error';
+        res.send(result);
+        return;
+    }
 });
 
 // Remove an audio list item
-apiv1.delete('/api/v1/audio', (req, res) => {
-    logger.info('remove audio list item');
-    res.send('remove audio item');
+apiv1.delete('/api/v1/audio', async (req, res) => {
+    const result = {
+        error: 0,
+        msg: 'Success',
+        data: {}
+    };
+
+    // TODO: acquire resource lock
+
+    try {
+        if (!req.query.id) {
+            result.error = ERR_NO_AUDIO_ID;
+            result.msg = 'No audio ID',
+            res.send(result);
+            return;
+        }
+        const id = req.query.id.toString().trim();
+
+        const audioList = await getAudioList();
+        if (!audioList) {
+            result.error = ERR_AUDIO_NOT_FOUND;
+            result.msg = 'Audio file not found';
+            res.send(result);
+            return;
+        } else {
+            const i = audioList.findIndex((item) => item.id === id);
+            if (i === -1) {
+                result.error = ERR_AUDIO_NOT_FOUND;
+                result.msg = 'Audio file not found';
+                res.send(result);
+                return;
+            } else {
+                audioList.splice(i, 1);
+                await setAudioList(audioList);
+                res.send(result);
+                return;
+            }
+        }
+    } catch (err) {
+        console.error(err);
+        result.error = ERR_SERVER_INTERNAL;
+        result.msg = 'Server error';
+        res.send(result);
+        return;
+    }
 });
 
 // Update an audio list item
-apiv1.put('/api/v1/audio', (req, res) => {
-    logger.info('update audio list item');
-    res.send('update audio item');
+apiv1.put('/api/v1/audio', async (req, res) => {
+    const result = {
+        error: 0,
+        msg: 'Success',
+        data: {}
+    };
+
+    // TODO: acquire resource lock
+
+    try {
+        if (!req.body.id) {
+            result.error = ERR_NO_AUDIO_ID;
+            result.msg = 'No audio ID',
+            res.send(result);
+            return;
+        } else if (!req.body.filename) {
+            result.error = ERR_NO_AUDIO_FILENAME;
+            result.msg = 'No audio filename',
+            res.send(result);
+            return;
+        }
+        const id = req.body.id.trim();
+        const filename = req.body.filename.trim();
+
+        const audioList = await getAudioList();
+        if (!audioList) {
+            result.error = ERR_AUDIO_NOT_FOUND;
+            result.msg = 'Audio file not found';
+            res.send(result);
+            return;
+        } else {
+            const i = audioList.findIndex((item) => item.id === id);
+            if (i === -1) {
+                result.error = ERR_AUDIO_NOT_FOUND;
+                result.msg = 'Audio file not found';
+                res.send(result);
+                return;
+            } else {
+                audioList[i].filename = filename;
+                await setAudioList(audioList);
+                res.send(result);
+                return;
+            }
+        }
+    } catch (err) {
+        console.error(err);
+        result.error = ERR_SERVER_INTERNAL;
+        result.msg = 'Server error';
+        res.send(result);
+        return;
+    }
 });
 
 export default apiv1;
