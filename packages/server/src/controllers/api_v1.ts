@@ -45,10 +45,6 @@ apiv1.get('/api/v1/get-server-info', async (req, res) => {
         msg: 'Success'
     };
 
-    result.data.cubeTokenValid = true;
-    res.send(result);
-    return;
-
     try {
         // 1. Check token existence.
         const token = await getCubeToken();
@@ -158,7 +154,8 @@ apiv1.get('/api/v1/audio/list', async (req, res) => {
     };
 
     try {
-        const files = await fs.readdir(path.join(process.env.CONFIG_DATA_PATH as string, AUDIO_FILES_DIR));
+        const dirname = path.join(process.env.CONFIG_DATA_PATH as string, AUDIO_FILES_DIR);
+        const files = await fs.readdir(dirname);
         const audioList = await getAudioList();
 
         if (!audioList) {
@@ -279,6 +276,20 @@ apiv1.put('/api/v1/audio', async (req, res) => {
                 res.send(result);
                 return;
             } else {
+                // Update real filename.
+                const dirname = path.join(process.env.CONFIG_DATA_PATH as string, AUDIO_FILES_DIR);
+                const files = await fs.readdir(dirname);
+                const fileIndex = files.findIndex((item) => item === audioList[i].filename);
+                if (fileIndex === -1) {
+                    // could not be happen :(
+                    console.log('file not found');
+                } else {
+                    const oldFilename = path.join(dirname, audioList[i].filename);
+                    const newFilename = path.join(dirname, filename);
+                    await fs.rename(oldFilename, newFilename);
+                }
+
+                // Update store data.
                 audioList[i].filename = filename;
                 await setAudioList(audioList);
                 res.send(result);
