@@ -33,6 +33,6 @@ export async function setTtsEngineId(id: string) {
     await tokenStore.set('ttsEngineId', data);
 }
 
-export async function getTtsEngineId(): Promise<{ token: string; updateTime: number; }> {
+export async function getTtsEngineId(): Promise<{ id: string; updateTime: number; }> {
     return await tokenStore.get('ttsEngineId');
 }

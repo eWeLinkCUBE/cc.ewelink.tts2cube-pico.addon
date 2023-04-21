@@ -10,7 +10,7 @@ import {
     getCubeTtsEngineList,
     registerCubeTtsEngine
 } from '../api/cube';
-import { getCubeToken } from '../store/token';
+import { getCubeToken, getTtsEngineId, setCubeToken, setTtsEngineId } from '../store/token';
 import {
     ERR_SUCCESS,
     ERR_SERVER_INTERNAL,
@@ -86,6 +86,8 @@ apiv1.get('/api/v1/get-cube-token', async (req, res) => {
         msg: 'Success'
     };
 
+    // TODO: handle request error
+
     try {
         // 1. Call getBridgeAt API.
         const atRes = await getCubeBridgeAt();
@@ -93,6 +95,9 @@ apiv1.get('/api/v1/get-cube-token', async (req, res) => {
             console.warn('get at failed');
             res.send(result);
             return;
+        } else {
+            // TODO: acquire lock resource
+            await setCubeToken(atRes.data.token);
         }
 
         // 2. Check TTS engine register status.
@@ -103,13 +108,32 @@ apiv1.get('/api/v1/get-cube-token', async (req, res) => {
             return;
         }
 
-        // 3. If no register, then do it.
-        // TODO: check register status
-        const regRes = await registerCubeTtsEngine();
-        if (regRes.error !== ERR_SUCCESS) {
-            console.warn('reg failed');
-            res.send(result);
-            return;
+        // 3. Check local TTS data.
+        let shouldRegister = false;
+        const engineId = await getTtsEngineId();
+        if (!engineId) {
+            shouldRegister = true;
+        } else {
+            const engineList = engineRes.data as { id: string; name: string; }[];
+            const found = _.find(engineList, { id: engineId.id });
+            if (found) {
+                shouldRegister = false;
+            } else {
+                shouldRegister = false;
+            }
+        }
+
+        // 4. Register TTS engine.
+        if (shouldRegister) {
+            const regRes = await registerCubeTtsEngine();
+            if (regRes.error !== ERR_SUCCESS) {
+                console.warn('reg failed');
+                res.send(result);
+                return;
+            } else {
+                const newEngineId = regRes.data as string;
+                await setTtsEngineId(newEngineId);
+            }
         }
 
         res.send(result);

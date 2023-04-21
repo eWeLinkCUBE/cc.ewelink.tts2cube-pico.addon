@@ -27,7 +27,9 @@ export async function initCubeApi() {
 export async function getCubeBridgeAt() {
     const result = {
         error: ERR_SUCCESS,
-        data: {}
+        data: {
+            token: ''
+        }
     };
 
     if (!cubeApiClient) {
@@ -36,6 +38,7 @@ export async function getCubeBridgeAt() {
         const res = await cubeApiClient.getBridgeAT({ timeout: 300000 });
         if (res.error === 0) {
             // TODO: save token - res.data.token
+            result.data.token = res.data.token;
         } else {
             result.error = ERR_HTTP_REQ;
         }
@@ -87,6 +90,7 @@ export async function registerCubeTtsEngine() {
             result.error = ERR_REG_ENGINE;
         } else {
             // TODO: save TTS engine ID
+            result.data = res.payload.engine_id;
         }
     }
 
