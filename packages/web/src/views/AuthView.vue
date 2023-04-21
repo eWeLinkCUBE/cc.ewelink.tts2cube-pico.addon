@@ -22,10 +22,18 @@
 </template>
 
 <script lang="ts" setup>
+import { useRouter } from 'vue-router';
 import { getCubeToken } from '@/api';
 
+const router = useRouter();
+
 const getToken = async () => {
-    await getCubeToken();
+    const res = await getCubeToken();
+    if (res.data.error === 0) {
+        router.push({ name: 'home' });
+    } else {
+        // TODO: handle error
+    }
 };
 </script>
 

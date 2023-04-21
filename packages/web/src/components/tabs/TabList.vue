@@ -42,6 +42,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, reactive } from 'vue';
 import { saveAs } from 'file-saver';
+import dayjs from 'dayjs';
 import { CheckOutlined, EditOutlined } from '@ant-design/icons-vue';
 import _ from 'lodash';
 import DescTitle from '@/components/DescTitle.vue';
@@ -52,6 +53,17 @@ import {
     removeAudioItem
 } from '@/api';
 import i18n from '@/i18n';
+
+type TableDataItem = {
+    // 以下数据由接口返回
+    key: number;
+    id: string;
+    filename: string;
+    text: string;
+    config: string;
+    time: string;
+    url: string;
+};
 
 // 表格栏配置
 const columns = [
@@ -79,22 +91,35 @@ const columns = [
 ];
 
 // 表格数据
-const tableData = ref<{
-    // 以下数据由接口返回
-    key: number;
-    id: string;
-    filename: string;
-    text: string;
-    config: string;
-    time: string;
-    url: string;
-}[]>([]);
+const tableData = ref<TableDataItem[]>([]);
 
 // 可编辑数据
 const editableData = reactive({}) as any;
 
 // 表格是否正在加载中
 const tableLoading = ref(false);
+
+// 解析后端返回的表格数据
+const parseTableData = (data: TableDataItem[]) => {
+    const result = [];
+    for (const item of data) {
+        const timeObj = new Date(item.time);
+        item.time = dayjs(timeObj).format('YYYY/MM/DD');
+        result.push(item);
+    }
+    return result;
+};
+
+// 获取表格数据
+const getTableData = async () => {
+    const res = await getAudioList();
+    if (res.data.error === 0) {
+        tableData.value = parseTableData(res.data.data.audioList as TableDataItem[]);
+    } else {
+        // TODO: handle msg
+        console.log(res.data.msg);
+    }
+};
 
 // 保存单元格
 const saveCell = async (record: any) => {
@@ -106,10 +131,11 @@ const saveCell = async (record: any) => {
     // 调用更新音频数据接口
     if (record.filename.trim() !== editableData[key].filename.trim()) {
         const updateId = record.id;
-        const updateFilename = record.filename;
+        const updateFilename = editableData[key].filename;
         setTimeout(async () => {
             tableLoading.value = true;
             await updateAudioItem({ id: updateId, filename: updateFilename });
+            await getTableData();
             tableLoading.value = false;
         }, 0);
     }
@@ -135,19 +161,16 @@ const downloadAudio = (id: string) => {
 
 // 删除音频文件
 const removeAudio = async (id: string) => {
+    tableLoading.value = true;
     await removeAudioItem(id);
+    await getTableData();
+    tableLoading.value = false;
 };
 
 onMounted(async () => {
     try {
         // 页面刷新时，获取第一页的音频数据
-        const res = await getAudioList();
-        if (res.data.error === 0) {
-            tableData.value = res.data.data.audioList;
-        } else {
-            // TODO: handle msg
-            console.log(res.data.msg);
-        }
+        await getTableData();
     } catch (err) {
         // TODO: handle error
         // AxiosError:

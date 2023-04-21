@@ -27,7 +27,7 @@ type ApiGetAudioListItem = {
     filename: string;
     text: string;
     config: string;
-    time: string;
+    time: number;
     url: string;
 };
 
@@ -115,7 +115,7 @@ apiv1.get('/api/v1/get-cube-token', async (req, res) => {
             if (found) {
                 shouldRegister = false;
             } else {
-                shouldRegister = false;
+                shouldRegister = true;
             }
         }
 
@@ -171,7 +171,7 @@ apiv1.get('/api/v1/audio/list', async (req, res) => {
                         filename: audioList[i].filename,
                         text: audioList[i].text,
                         config: audioList[i].config,
-                        time: new Date(audioList[i].createdAt).toISOString(),
+                        time: audioList[i].createdAt,
                         url: 'http://127.0.0.1:8080/_audio/' + audioList[i].filename,
                     });
                 }
