@@ -191,6 +191,10 @@ onMounted(async () => {
             height: 27px;
             margin-right: 20px;
         }
+
+        .operation-icon:hover {
+            cursor: pointer;
+        }
     }
 }
 
