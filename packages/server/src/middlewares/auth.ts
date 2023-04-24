@@ -7,7 +7,7 @@ import logger from '../logger';
 
 // Sign middleware
 const auth = (req: Request, res: Response, next: NextFunction) => {
-    logger.info('(middleware.auth) started');
+    logger.info('(middleware.auth) test');
     next();
 };
 

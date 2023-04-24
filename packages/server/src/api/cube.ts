@@ -1,6 +1,6 @@
+import process from 'node:process';
 import _ from 'lodash';
 import CubeApi from '../ewelink-cube-api/src';
-import { EWELINK_CUBE_HOSTNAME } from '../const';
 import { getCubeToken } from '../store/token';
 import {
     ERR_SUCCESS,
@@ -10,6 +10,7 @@ import {
     ERR_REG_ENGINE
 } from '../error';
 
+const EWELINK_CUBE_HOSTNAME = process.env.CONFIG_CUBE_HOSTNAME as string;
 const CubeApiClient = CubeApi.ihostApi;
 let cubeApiClient: any = null;
 
@@ -37,7 +38,6 @@ export async function getCubeBridgeAt() {
     } else {
         const res = await cubeApiClient.getBridgeAT({ timeout: 300000 });
         if (res.error === 0) {
-            // TODO: save token - res.data.token
             result.data.token = res.data.token;
         } else {
             result.error = ERR_HTTP_REQ;

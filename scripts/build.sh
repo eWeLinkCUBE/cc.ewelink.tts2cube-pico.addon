@@ -14,6 +14,6 @@ cp -r packages/web/dist build/public
 cp docker/Dockerfile build
 
 cat << EOF > ./build/buildinfo
-BUILD_VERSION=$build_version
-BUILD_DATE=$(date '+%F %T')
+Build Version: $build_version
+Build Date: $(date '+%F %T')
 EOF
