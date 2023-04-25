@@ -14,6 +14,7 @@
                 <a-button
                     type="primary"
                     class="get-token-btn"
+                    :loading="btnLoading"
                     @click="getToken"
                 >{{ $t('get_token') }}</a-button>
             </div>
@@ -22,18 +23,31 @@
 </template>
 
 <script lang="ts" setup>
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { message } from 'ant-design-vue';
 import { getCubeToken } from '@/api';
 
 const router = useRouter();
+const btnLoading = ref(false);
 
 const getToken = async () => {
-    const res = await getCubeToken();
-    if (res.data.error === 0) {
-        router.push({ name: 'home' });
-    } else {
-        // TODO: handle error
+    btnLoading.value = true;
+
+    try {
+        const res = await getCubeToken();
+        if (res.data.error === 0) {
+            router.push({ name: 'home' });
+        } else {
+            message.error(`Get token failed`);
+        }
+    } catch (err: any) {
+        const errContent = `${err.name}: ${err.message}`;
+        console.error(`getCubeToken() failed: ${errContent}`);
+        message.error(errContent);
     }
+
+    btnLoading.value = false;
 };
 </script>
 

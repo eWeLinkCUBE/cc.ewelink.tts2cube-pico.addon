@@ -16,8 +16,15 @@ import { printBuildinfo } from './utils/welcome';
 
 logger.info('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ START @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
 
+const {
+    ENABLE_PRINT_BUILDINFO,
+    ENABLE_MIDDLEWARE_LOG,
+    ENABLE_MIDDLEWARE_AUTH,
+    CONFIG_DATA_PATH
+} = process.env;
+
 // Enable print build info.
-if (process.env.ENABLE_PRINT_BUILDINFO === '1') {
+if (ENABLE_PRINT_BUILDINFO === '1') {
     printBuildinfo();
 }
 
@@ -31,12 +38,12 @@ const server = express();
 server.use(express.json());
 
 // Enable log middleware.
-if (process.env.ENABLE_MIDDLEWARE_LOG === '1') {
+if (ENABLE_MIDDLEWARE_LOG === '1') {
     server.use(log);
 }
 
 // Enable auth middleware.
-if (process.env.ENABLE_MIDDLEWARE_AUTH === '1') {
+if (ENABLE_MIDDLEWARE_AUTH === '1') {
     server.use(auth);
 }
 
@@ -44,7 +51,7 @@ if (process.env.ENABLE_MIDDLEWARE_AUTH === '1') {
 server.use(express.static(path.join(process.cwd(), 'public')));
 
 // Serve audio static files.
-server.use('/_audio', express.static(path.join(process.env.CONFIG_DATA_PATH as string, AUDIO_FILES_DIR)));
+server.use('/_audio', express.static(path.join(CONFIG_DATA_PATH as string, AUDIO_FILES_DIR)));
 
 server.use(apiv1);
 

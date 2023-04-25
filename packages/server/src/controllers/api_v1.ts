@@ -80,16 +80,18 @@ apiv1.get('/api/v1/get-cube-token', async (req, res) => {
         data: {},
         msg: 'Success'
     };
-
-    // TODO: handle request error
+    const logType = '(api.getCubeToken)';
 
     try {
         // 1. Call getBridgeAt API.
         const atRes = await getCubeBridgeAt();
+        logger.debug(`${logType} atRes: ${JSON.stringify(atRes)}`);
         if (atRes.error !== ERR_SUCCESS) {
-            console.warn('get at failed');
-            res.send(result);
-            return;
+            logger.warn(`${logType} getCubeBridgeAt() failed: ${atRes.msg}`);
+            result.error = atRes.error;
+            result.msg = atRes.msg;
+            logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+            return res.send(result);
         } else {
             // TODO: acquire lock resource
             await setCubeToken(atRes.data.token);
@@ -97,15 +99,19 @@ apiv1.get('/api/v1/get-cube-token', async (req, res) => {
 
         // 2. Check TTS engine register status.
         const engineRes = await getCubeTtsEngineList();
+        logger.debug(`${logType} engineRes: ${JSON.stringify(engineRes)}`);
         if (engineRes.error !== ERR_SUCCESS) {
-            console.warn('get list failed');
-            res.send(result);
-            return;
+            logger.warn(`${logType} getCubeTtsEngineList() failed: ${engineRes.msg}`);
+            result.error = engineRes.error;
+            result.msg = engineRes.msg;
+            logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+            return res.send(result);
         }
 
         // 3. Check local TTS data.
         let shouldRegister = false;
         const engineId = await getTtsEngineId();
+        logger.debug(`${logType} engineId: ${JSON.stringify(engineId)}`);
         if (!engineId) {
             shouldRegister = true;
         } else {
@@ -121,24 +127,28 @@ apiv1.get('/api/v1/get-cube-token', async (req, res) => {
         // 4. Register TTS engine.
         if (shouldRegister) {
             const regRes = await registerCubeTtsEngine();
+            logger.debug(`${logType} regRes: ${JSON.stringify(regRes)}`);
             if (regRes.error !== ERR_SUCCESS) {
-                console.warn('reg failed');
-                res.send(result);
-                return;
+                logger.warn(`${logType} registerCubeTtsEngine() failed: ${regRes.msg}`);
+                result.error = regRes.error;
+                result.msg = regRes.msg;
+                logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+                return res.send(result);
             } else {
+                // TODO: acquire lock resource
                 const newEngineId = regRes.data as string;
                 await setTtsEngineId(newEngineId);
             }
         }
 
-        res.send(result);
-        return;
-    } catch (err) {
-        console.error(err);
+        logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+        return res.send(result);
+    } catch (err: any) {
+        logger.error(`${logType} ${err.name}: ${err.message}`);
         result.error = ERR_SERVER_INTERNAL;
         result.msg = 'Server error';
-        res.send(result);
-        return;
+        logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+        return res.send(result);
     }
 });
 

@@ -9,7 +9,7 @@ import {
     ERR_HTTP_REQ,
     ERR_REG_ENGINE
 } from '../error';
-import { SERVER_LISTEN_PORT } from '../const';
+import { GET_BRIDGE_AT_TIMEOUT, SERVER_LISTEN_PORT } from '../const';
 
 const EWELINK_CUBE_HOSTNAME = process.env.CONFIG_CUBE_HOSTNAME as string;
 const CubeApiClient = CubeApi.ihostApi;
@@ -31,17 +31,22 @@ export async function getCubeBridgeAt() {
         error: ERR_SUCCESS,
         data: {
             token: ''
-        }
+        },
+        msg: ''
     };
 
     if (!cubeApiClient) {
         result.error = ERR_NO_CUBE_API_CLIENT;
     } else {
-        const res = await cubeApiClient.getBridgeAT({ timeout: 300000 });
+        const res = await cubeApiClient.getBridgeAT({ timeout: GET_BRIDGE_AT_TIMEOUT });
         if (res.error === 0) {
             result.data.token = res.data.token;
+        } else if (res.error === 1001) {
+            result.error = ERR_TIMEOUT;
+            result.msg = 'Timeout';
         } else {
             result.error = ERR_HTTP_REQ;
+            result.msg = 'HTTP request error';
         }
     }
 
@@ -52,7 +57,8 @@ export async function getCubeBridgeAt() {
 export async function getCubeTtsEngineList() {
     const result = {
         error: ERR_SUCCESS,
-        data: {}
+        data: {},
+        msg: ''
     };
 
     if (!cubeApiClient) {
@@ -63,6 +69,7 @@ export async function getCubeTtsEngineList() {
             result.data = res.data;
         } else {
             result.error = ERR_HTTP_REQ;
+            result.msg = 'HTTP request error';
         }
     }
 
@@ -73,7 +80,8 @@ export async function getCubeTtsEngineList() {
 export async function registerCubeTtsEngine() {
     const result = {
         error: ERR_SUCCESS,
-        data: {}
+        data: {},
+        msg: ''
     };
 
     if (!cubeApiClient) {
@@ -89,6 +97,7 @@ export async function registerCubeTtsEngine() {
             // TODO: log error
             console.log(errDesc);
             result.error = ERR_REG_ENGINE;
+            result.msg = 'Register TTS engine failed';
         } else {
             // TODO: save TTS engine ID
             result.data = res.payload.engine_id;
@@ -102,7 +111,8 @@ export async function registerCubeTtsEngine() {
 export async function getCubeDeviceList() {
     const result = {
         error: ERR_SUCCESS,
-        data: {}
+        data: {},
+        msg: ''
     };
 
     if (!cubeApiClient) {
@@ -113,6 +123,7 @@ export async function getCubeDeviceList() {
             result.data = res.data;
         } else {
             result.error = ERR_HTTP_REQ;
+            result.msg = 'HTTP request error';
         }
     }
 
