@@ -28,7 +28,6 @@ type ApiGetAudioListItem = {
     text: string;
     config: string;
     time: number;
-    url: string;
 };
 
 const apiv1 = express.Router();
@@ -171,8 +170,7 @@ apiv1.get('/api/v1/audio/list', async (req, res) => {
                         filename: audioList[i].filename,
                         text: audioList[i].text,
                         config: audioList[i].config,
-                        time: audioList[i].createdAt,
-                        url: 'http://127.0.0.1:8080/_audio/' + audioList[i].filename,
+                        time: audioList[i].createdAt
                     });
                 }
             }

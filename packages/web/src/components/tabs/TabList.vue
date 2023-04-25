@@ -50,7 +50,8 @@ import PlayAudioBtn from '@/components/PlayAudioBtn.vue';
 import {
     getAudioList,
     updateAudioItem,
-    removeAudioItem
+    removeAudioItem,
+    SERVER_PORT
 } from '@/api';
 import i18n from '@/i18n';
 
@@ -105,6 +106,7 @@ const parseTableData = (data: TableDataItem[]) => {
     for (const item of data) {
         const timeObj = new Date(item.time);
         item.time = dayjs(timeObj).format('YYYY/MM/DD');
+        item.url = `http://${location.hostname}:${SERVER_PORT}/_audio/${item.filename}`;
         result.push(item);
     }
     return result;

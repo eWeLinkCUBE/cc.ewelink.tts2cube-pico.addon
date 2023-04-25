@@ -9,6 +9,7 @@ import {
     ERR_HTTP_REQ,
     ERR_REG_ENGINE
 } from '../error';
+import { SERVER_LISTEN_PORT } from '../const';
 
 const EWELINK_CUBE_HOSTNAME = process.env.CONFIG_CUBE_HOSTNAME as string;
 const CubeApiClient = CubeApi.ihostApi;
@@ -80,7 +81,7 @@ export async function registerCubeTtsEngine() {
     } else {
         const res = await cubeApiClient.registerTtsEngine({
             serviceName: 'TTS addon',
-            serviceAddr: 'http://ihost:8080/api/v1/audio/list'
+            serviceAddr: `http://${EWELINK_CUBE_HOSTNAME}:${SERVER_LISTEN_PORT}/api/v1/audio/list`
         });
         const errType = _.get(res, 'payload.type');
         const errDesc = _.get(res, 'payload.description');

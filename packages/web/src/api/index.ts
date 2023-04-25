@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASEURL = `http://${location.host}/api/v1`;
+export const SERVER_PORT = 8080;
+const API_BASEURL = `http://${location.hostname}:${SERVER_PORT}/api/v1`;
 
 export async function getAudioList(pagesize = 10, pagenum = 1) {
     const url = '/audio/list';
