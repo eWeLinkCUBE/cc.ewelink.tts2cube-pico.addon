@@ -1,3 +1,4 @@
+import process from 'node:process';
 import {
     createLogger,
     format,
@@ -5,7 +6,7 @@ import {
 } from 'winston';
 
 const logger = createLogger({
-    level: 'debug',
+    level: process.env.LOG_LEVEL,
     format: format.combine(format.timestamp(), format.printf((info) => {
         const {
             timestamp,
