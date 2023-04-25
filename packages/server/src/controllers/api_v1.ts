@@ -162,15 +162,18 @@ apiv1.get('/api/v1/audio/list', async (req, res) => {
         msg: 'Success',
         data: {}
     };
+    const logType = '(apiv1.getAudioList)';
 
     try {
         const dirname = path.join(process.env.CONFIG_DATA_PATH as string, AUDIO_FILES_DIR);
         const files = await fs.readdir(dirname);
         const audioList = await getAudioList();
+        logger.debug(`${logType} audioList: ${JSON.stringify(audioList)}`);
 
         if (!audioList) {
-            res.send(result);
-            return;
+            logger.warn(`${logType} audioList is empty`);
+            logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+            return res.send(result);
         } else {
             const parsedAudioList: ApiGetAudioListItem[] = [];
             for (let i = 0; i < audioList.length; i++) {
@@ -186,15 +189,15 @@ apiv1.get('/api/v1/audio/list', async (req, res) => {
                 }
             }
             _.set(result, 'data.audioList', parsedAudioList);
-            res.send(result);
-            return;
+            logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+            return res.send(result);
         }
-    } catch (err) {
-        console.error(err);
+    } catch (err: any) {
+        logger.error(`${logType} ${err.name}: ${err.message}`);
         result.error = ERR_SERVER_INTERNAL;
         result.msg = 'Server error';
-        res.send(result);
-        return;
+        logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+        return res.send(result);
     }
 });
 
@@ -205,31 +208,33 @@ apiv1.delete('/api/v1/audio', async (req, res) => {
         msg: 'Success',
         data: {}
     };
+    const logType = '(apiv1.removeAudioItem)';
 
     // TODO: acquire resource lock
 
     try {
         if (!req.query.id) {
             result.error = ERR_NO_AUDIO_ID;
-            result.msg = 'No audio ID',
-            res.send(result);
-            return;
+            result.msg = 'No audio ID';
+            logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+            return res.send(result);
         }
         const id = req.query.id.toString().trim();
 
         const audioList = await getAudioList();
+        logger.debug(`${logType} audioList: ${JSON.stringify(audioList)}`);
         if (!audioList) {
             result.error = ERR_AUDIO_NOT_FOUND;
-            result.msg = 'Audio file not found';
-            res.send(result);
-            return;
+            result.msg = 'Audio list is empty';
+            logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+            return res.send(result);
         } else {
             const i = audioList.findIndex((item) => item.id === id);
             if (i === -1) {
                 result.error = ERR_AUDIO_NOT_FOUND;
                 result.msg = 'Audio file not found';
-                res.send(result);
-                return;
+                logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+                return res.send(result);
             } else {
                 // Remove real file.
                 const dirname = path.join(process.env.CONFIG_DATA_PATH as string, AUDIO_FILES_DIR);
@@ -238,16 +243,16 @@ apiv1.delete('/api/v1/audio', async (req, res) => {
                 // Remove store data.
                 audioList.splice(i, 1);
                 await setAudioList(audioList);
-                res.send(result);
-                return;
+                logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+                return res.send(result);
             }
         }
-    } catch (err) {
-        console.error(err);
+    } catch (err: any) {
+        logger.error(`${logType} ${err.name}: ${err.message}`);
         result.error = ERR_SERVER_INTERNAL;
         result.msg = 'Server error';
-        res.send(result);
-        return;
+        logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+        return res.send(result);
     }
 });
 
@@ -258,37 +263,41 @@ apiv1.put('/api/v1/audio', async (req, res) => {
         msg: 'Success',
         data: {}
     };
+    const logType = '(apiv1.updateAudioItem)';
 
     // TODO: acquire resource lock
 
     try {
         if (!req.body.id) {
             result.error = ERR_NO_AUDIO_ID;
-            result.msg = 'No audio ID',
-            res.send(result);
-            return;
+            result.msg = 'No audio ID';
+            logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+            return res.send(result);
         } else if (!req.body.filename) {
             result.error = ERR_NO_AUDIO_FILENAME;
-            result.msg = 'No audio filename',
-            res.send(result);
-            return;
+            result.msg = 'No audio filename';
+            logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+            return res.send(result);
         }
         const id = req.body.id.trim();
         const filename = req.body.filename.trim();
 
         const audioList = await getAudioList();
+        logger.debug(`${logType} audioList: ${JSON.stringify(audioList)}`);
         if (!audioList) {
+            logger.warn(`${logType} no audioList`);
             result.error = ERR_AUDIO_NOT_FOUND;
             result.msg = 'Audio file not found';
-            res.send(result);
-            return;
+            logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+            return res.send(result);
         } else {
             const i = audioList.findIndex((item) => item.id === id);
             if (i === -1) {
+                logger.warn(`${logType} audio file not found by ID`);
                 result.error = ERR_AUDIO_NOT_FOUND;
                 result.msg = 'Audio file not found';
-                res.send(result);
-                return;
+                logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+                return res.send(result);
             } else {
                 // Update real filename.
                 const dirname = path.join(process.env.CONFIG_DATA_PATH as string, AUDIO_FILES_DIR);
@@ -296,7 +305,7 @@ apiv1.put('/api/v1/audio', async (req, res) => {
                 const fileIndex = files.findIndex((item) => item === audioList[i].filename);
                 if (fileIndex === -1) {
                     // could not be happen :(
-                    console.log('file not found');
+                    logger.warn(`${logType} audio file not found by filename`);
                 } else {
                     const oldFilename = path.join(dirname, audioList[i].filename);
                     const newFilename = path.join(dirname, filename);
@@ -306,16 +315,16 @@ apiv1.put('/api/v1/audio', async (req, res) => {
                 // Update store data.
                 audioList[i].filename = filename;
                 await setAudioList(audioList);
-                res.send(result);
-                return;
+                logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+                return res.send(result);
             }
         }
-    } catch (err) {
-        console.error(err);
+    } catch (err: any) {
+        logger.error(`${logType} ${err.name}: ${err.message}`);
         result.error = ERR_SERVER_INTERNAL;
         result.msg = 'Server error';
-        res.send(result);
-        return;
+        logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+        return res.send(result);
     }
 });
 
