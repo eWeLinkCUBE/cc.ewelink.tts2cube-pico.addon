@@ -44,6 +44,7 @@ import { ref, onMounted, reactive } from 'vue';
 import { saveAs } from 'file-saver';
 import dayjs from 'dayjs';
 import { CheckOutlined, EditOutlined } from '@ant-design/icons-vue';
+import { message } from 'ant-design-vue';
 import _ from 'lodash';
 import DescTitle from '@/components/DescTitle.vue';
 import PlayAudioBtn from '@/components/PlayAudioBtn.vue';
@@ -114,12 +115,18 @@ const parseTableData = (data: TableDataItem[]) => {
 
 // 获取表格数据
 const getTableData = async () => {
-    const res = await getAudioList();
-    if (res.data.error === 0) {
-        tableData.value = parseTableData(res.data.data.audioList as TableDataItem[]);
-    } else {
-        // TODO: handle msg
-        console.log(res.data.msg);
+    try {
+        const res = await getAudioList();
+        if (res.data.error === 0) {
+            tableData.value = parseTableData(res.data.data.audioList as TableDataItem[]);
+        } else {
+            message.error(res.data.msg);
+            console.error(`getAudioList(): ${res.data.msg}`);
+        }
+    } catch (err: any) {
+        const errContent = `${err.name}: ${err.message}`;
+        message.error(errContent);
+        console.error(`getAudioList(): ${errContent}`);
     }
 };
 
@@ -136,8 +143,14 @@ const saveCell = async (record: any) => {
         const updateFilename = editableData[key].filename;
         setTimeout(async () => {
             tableLoading.value = true;
-            await updateAudioItem({ id: updateId, filename: updateFilename });
-            await getTableData();
+            try {
+                await updateAudioItem({ id: updateId, filename: updateFilename });
+                await getTableData();
+            } catch (err: any) {
+                const errContent = `${err.name}: ${err.message}`;
+                message.error(errContent);
+                console.error(`saveCell(): ${errContent}`);
+            }
             tableLoading.value = false;
         }, 0);
     }
@@ -164,8 +177,14 @@ const downloadAudio = (id: string) => {
 // 删除音频文件
 const removeAudio = async (id: string) => {
     tableLoading.value = true;
-    await removeAudioItem(id);
-    await getTableData();
+    try {
+        await removeAudioItem(id);
+        await getTableData();
+    } catch (err: any) {
+        const errContent = `${err.name}: ${err.message}`;
+        message.error(errContent);
+        console.error(`removeAudio: ${errContent}`)
+    }
     tableLoading.value = false;
 };
 
@@ -173,13 +192,10 @@ onMounted(async () => {
     try {
         // 页面刷新时，获取第一页的音频数据
         await getTableData();
-    } catch (err) {
-        // TODO: handle error
-        // AxiosError:
-        // err.message - Network Error
-        // err.name - AxiosError
-        // err.code - ERR_NETWORK
-        console.error(err);
+    } catch (err: any) {
+        const errContent = `${err.name}: ${err.message}`;
+        message.error(errContent);
+        console.error(`onMounted: getTableData(): ${errContent}`);
     }
 });
 </script>
