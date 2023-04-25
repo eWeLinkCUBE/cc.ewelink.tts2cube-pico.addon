@@ -20,34 +20,37 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from) => {
-    if (to.name === 'home') {
-        sessionStorage.clear();
+    const tokenIsValid = async () => {
         try {
-            // 如果 eWeLink Cube 凭证有效，则继续前往 home 页；
-            // 否则前往 auth 页
             const res = await getServerInfo();
             if (res.data.error === 0 && res.data.data.cubeTokenValid) {
-                // 在 session 中暂存凭证的有效性
-                sessionStorage.setItem('cube_token_valid', '1');
                 return true;
             } else {
-                console.warn(res.data);
-                return { name: 'auth' };
+                return false;
             }
-        } catch (err) {
-            console.error(err);
+        } catch (err: any) {
+            console.error(`Get server info errror: ${err.name}: ${err.message}`);
+            return false;
+        }
+    };
+
+    if (to.name === 'home') {
+        const res = await tokenIsValid();
+        if (res) {
+            return true;
+        } else {
             return { name: 'auth' };
         }
     }
 
     if (to.name === 'auth') {
-        const res = sessionStorage.getItem('cube_token_valid');
-        if (res === '1') {
-            return { name: 'home' }
+        const res = await tokenIsValid();
+        if (res) {
+            return { name: 'home' };
+        } else {
+            return true;
         }
     }
-
-    return true;
 });
 
 export default router;

@@ -34,8 +34,6 @@ const apiv1 = express.Router();
 
 // Get server information
 apiv1.get('/api/v1/get-server-info', async (req, res) => {
-    logger.info('get server info');
-
     const result = {
         error: 0,
         data: {
@@ -43,33 +41,36 @@ apiv1.get('/api/v1/get-server-info', async (req, res) => {
         },
         msg: 'Success'
     };
+    const logType = '(apiv1.getServerInfo)';
 
     try {
         // 1. Check token existence.
         const token = await getCubeToken();
+        logger.debug(`${logType} token: ${JSON.stringify(token)}`);
         if (!token) {
-            console.warn('no token');
-            res.send(result);
-            return;
+            logger.warn(`${logType} getCubeToken(): no token`);
+            logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+            return res.send(result);
         }
 
         // 2. Check token validation.
         const devListRes = await getCubeDeviceList();
+        logger.debug(`${logType} devListRes.error: ${devListRes.error}`);
         if (devListRes.error !== ERR_SUCCESS) {
-            console.warn('token unvalid');
-            res.send(result);
-            return;
+            logger.warn(`${logType} getCubeDeviceList() failed: ${devListRes.msg}`);
+            logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+            return res.send(result);
         }
 
         result.data.cubeTokenValid = true;
-        res.send(result);
-        return;
-    } catch (err) {
-        console.error(err);
+        logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+        return res.send(result);
+    } catch (err: any) {
+        logger.error(`${logType} ${err.name}: ${err.message}`);
         result.error = ERR_SERVER_INTERNAL;
         result.msg = 'Server error'
-        res.send(result);
-        return;
+        logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+        return res.send(result);
     }
 });
 
@@ -80,7 +81,7 @@ apiv1.get('/api/v1/get-cube-token', async (req, res) => {
         data: {},
         msg: 'Success'
     };
-    const logType = '(api.getCubeToken)';
+    const logType = '(apiv1.getCubeToken)';
 
     try {
         // 1. Call getBridgeAt API.
