@@ -3,7 +3,8 @@ import {
     Button,
     Table,
     ConfigProvider,
-    Input
+    Input,
+    Progress
 } from 'ant-design-vue';
 
 import App from './App.vue';
@@ -22,5 +23,6 @@ app.use(Button);
 app.use(Table);
 app.use(ConfigProvider);
 app.use(Input);
+app.use(Progress);
 
 app.mount('#app');
