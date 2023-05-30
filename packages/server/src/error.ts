@@ -42,3 +42,20 @@ export const ERR_AUDIO_NOT_FOUND = 7;
  * No audio filename
  */
 export const ERR_NO_AUDIO_FILENAME = 8;
+
+// ----------------------------------------------------------------
+
+/**
+ * eWeLink Cube API token invalid
+ */
+export const ERR_CUBE_API_TOKEN_INVALID = 100;
+
+/**
+ * eWeLink Cube API request timeout
+ */
+export const ERR_CUBE_API_TIMEOUT = 101;
+
+/**
+ * eWeLink Cube API unknown error
+ */
+export const ERR_CUBE_API_UNKNOWN = 102;
