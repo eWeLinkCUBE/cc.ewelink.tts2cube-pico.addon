@@ -8,11 +8,11 @@ import logger from './logger';
 import {
     SERVER_LISTEN_HOST,
     SERVER_LISTEN_PORT,
-    AUDIO_FILES_DIR
 } from './const';
 import { initCubeApi } from './api/cube';
 import { initAudioStore } from './store/audio';
 import { printBuildinfo } from './utils/welcome';
+import { getAudioFilesDir } from './utils/etc';
 
 logger.info('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ START @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
 
@@ -20,7 +20,6 @@ const {
     ENABLE_PRINT_BUILDINFO,
     ENABLE_MIDDLEWARE_LOG,
     ENABLE_MIDDLEWARE_AUTH,
-    CONFIG_DATA_PATH
 } = process.env;
 
 // Enable print build info.
@@ -51,7 +50,7 @@ if (ENABLE_MIDDLEWARE_AUTH === '1') {
 server.use(express.static(path.join(process.cwd(), 'public')));
 
 // Serve audio static files.
-server.use('/_audio', express.static(path.join(CONFIG_DATA_PATH as string, AUDIO_FILES_DIR)));
+server.use('/_audio', express.static(getAudioFilesDir()));
 
 server.use(apiv1);
 

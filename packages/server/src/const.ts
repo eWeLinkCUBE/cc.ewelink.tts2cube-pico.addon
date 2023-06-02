@@ -9,11 +9,6 @@ export const SERVER_LISTEN_HOST = '0.0.0.0';
 export const SERVER_LISTEN_PORT = 8080;
 
 /**
- * Audio files directory name.
- */
-export const AUDIO_FILES_DIR = 'audio';
-
-/**
  * Build info file name.
  */
 export const BUILDINFO_FILE = 'buildinfo';

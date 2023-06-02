@@ -3,11 +3,11 @@ import process from 'node:process';
 import path from 'node:path';
 import Keyv from 'keyv';
 import { KeyvFile } from 'keyv-file';
-import { AUDIO_FILES_DIR } from '../const';
+import { getAudioFilesDir } from '../utils/etc';
 
-const { CONFIG_DATA_PATH } = process.env;
+const { CONFIG_AUDIO_DATA_PATH } = process.env;
 const AUDIO_FILE = 'audio.json';
-const AUDIO_STORE_FILENAME = path.join(CONFIG_DATA_PATH as string, AUDIO_FILE);
+const AUDIO_STORE_FILENAME = path.join(CONFIG_AUDIO_DATA_PATH as string, AUDIO_FILE);
 
 const audioStore = new Keyv({
     store: new KeyvFile({
@@ -42,7 +42,7 @@ export async function initAudioStore() {
         return;
     } else {
         // Get audio files.
-        const dirname = path.join(process.env.CONFIG_DATA_PATH as string, AUDIO_FILES_DIR);
+        const dirname = getAudioFilesDir();
         const files = await fs.readdir(dirname);
 
         // Update audioList

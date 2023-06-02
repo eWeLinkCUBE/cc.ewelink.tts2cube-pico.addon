@@ -3,9 +3,9 @@ import path from 'node:path';
 import Keyv from 'keyv';
 import { KeyvFile } from 'keyv-file';
 
-const { CONFIG_DATA_PATH } = process.env;
+const { CONFIG_TOKEN_DATA_PATH } = process.env;
 const TOKEN_FILE = 'token.json';
-const TOKEN_STORE_FILENAME = path.join(CONFIG_DATA_PATH as string, TOKEN_FILE);
+const TOKEN_STORE_FILENAME = path.join(CONFIG_TOKEN_DATA_PATH as string, TOKEN_FILE);
 
 const tokenStore = new Keyv({
     store: new KeyvFile({

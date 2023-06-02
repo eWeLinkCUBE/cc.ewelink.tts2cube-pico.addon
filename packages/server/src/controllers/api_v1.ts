@@ -18,8 +18,8 @@ import {
     ERR_AUDIO_NOT_FOUND,
     ERR_NO_AUDIO_FILENAME
 } from '../error';
-import { AUDIO_FILES_DIR } from '../const';
 import { getAudioList, setAudioList } from '../store/audio';
+import { getAudioFilesDir } from '../utils/etc';
 
 type ApiGetAudioListItem = {
     key: number;
@@ -165,7 +165,7 @@ apiv1.get('/api/v1/audio/list', async (req, res) => {
     const logType = '(apiv1.getAudioList)';
 
     try {
-        const dirname = path.join(process.env.CONFIG_DATA_PATH as string, AUDIO_FILES_DIR);
+        const dirname = getAudioFilesDir();
         const files = await fs.readdir(dirname);
         const audioList = await getAudioList();
         logger.debug(`${logType} audioList: ${JSON.stringify(audioList)}`);
@@ -237,7 +237,7 @@ apiv1.delete('/api/v1/audio', async (req, res) => {
                 return res.send(result);
             } else {
                 // Remove real file.
-                const dirname = path.join(process.env.CONFIG_DATA_PATH as string, AUDIO_FILES_DIR);
+                const dirname = getAudioFilesDir();
                 await fs.unlink(path.join(dirname, audioList[i].filename));
 
                 // Remove store data.
@@ -300,7 +300,7 @@ apiv1.put('/api/v1/audio', async (req, res) => {
                 return res.send(result);
             } else {
                 // Update real filename.
-                const dirname = path.join(process.env.CONFIG_DATA_PATH as string, AUDIO_FILES_DIR);
+                const dirname = getAudioFilesDir();
                 const files = await fs.readdir(dirname);
                 const fileIndex = files.findIndex((item) => item === audioList[i].filename);
                 if (fileIndex === -1) {

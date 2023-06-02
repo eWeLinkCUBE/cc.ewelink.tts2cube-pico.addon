@@ -5,7 +5,9 @@
             <div class="title">
                 <h1>{{ $t('get_gateway_token') }}</h1>
             </div>
-            <div class="img"></div>
+            <div class="img">
+                <img src="@/assets/get-token-tutorial.png" alt="Get token tutorial">
+            </div>
             <div class="desc">
                 <p>{{ $t('step_1_click_get_token_button') }}</p>
                 <p>{{ $t('step_2_confirm_token_popup') }}</p>
