@@ -12,6 +12,7 @@ cp -r packages/server/dist build/server
 cp -r packages/web/dist build/public
 
 cp docker/Dockerfile build
+cp docker/publish.sh build
 
 cat << EOF > ./build/buildinfo
 Build Version: $build_version

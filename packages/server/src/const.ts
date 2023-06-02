@@ -6,7 +6,7 @@ export const SERVER_LISTEN_HOST = '0.0.0.0';
 /**
  * Server listen port.
  */
-export const SERVER_LISTEN_PORT = 8080;
+export const SERVER_LISTEN_PORT = 8323;
 
 /**
  * Build info file name.

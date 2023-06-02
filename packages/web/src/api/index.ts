@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const SERVER_PORT = 8080;
+export const SERVER_PORT = 8323;
 const API_BASEURL = `http://${location.hostname}:${SERVER_PORT}/api/v1`;
 
 export async function getAudioList(pagesize = 10, pagenum = 1) {

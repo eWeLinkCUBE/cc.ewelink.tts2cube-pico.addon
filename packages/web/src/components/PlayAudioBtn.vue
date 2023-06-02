@@ -34,7 +34,7 @@ const sound = useSound(props.audioUrl);
 // Circle bar update interval, unit ms (33 - 30FPS, 17 - 60FPS)
 const timeInterval = 17;
 
-let timer: null | number = null;
+let timer: any = null;
 let playedTime = timeInterval;
 
 const clearTimer = () => {
