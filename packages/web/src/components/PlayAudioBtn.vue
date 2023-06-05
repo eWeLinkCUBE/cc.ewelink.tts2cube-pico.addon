@@ -1,11 +1,13 @@
 <!-- 播放音乐的按钮 -->
 <template>
     <div class="play-audio-btn">
-        <img v-if="switchState === 'off'" src="@/assets/play.png" alt="play button" @click="playAudio">
+        <img v-if="switchState === 'off'" src="@/assets/play.png" alt="play button" @click="playAudio" width="27" height="27">
+        <img v-if="switchState === 'on'" src="@/assets/pause-bar.png" class="pause-bar" alt="pause button bar" width="27" height="27">
 
         <a-progress
             v-if="switchState === 'on'"
             type="circle"
+            class="progress-bar"
             :percent="percent"
             :width="27"
             :showInfo="false"
@@ -84,5 +86,10 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 .play-audio-btn {
     display: inline-block;
+    position: relative;
+}
+
+.pause-bar {
+    position: absolute;
 }
 </style>
