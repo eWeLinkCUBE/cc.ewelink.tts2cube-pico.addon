@@ -31,7 +31,8 @@
                     <template v-else-if="column.dataIndex === 'operation'">
                         <PlayAudioBtn class="operation-icon" :audio-url="record.url" />
                         <img class="operation-icon" @click="() => downloadAudio(record.id)" src="@/assets/download.png" alt="download icon">
-                        <img class="operation-icon" @click="() => removeAudio(record.id)" src="@/assets/delete.png" alt="delete icon">
+                        <!-- TODO: hide delete button for demo version -->
+                        <!-- <img class="operation-icon" @click="() => removeAudio(record.id)" src="@/assets/delete.png" alt="delete icon"> -->
                     </template>
                 </template>
             </a-table>
@@ -40,11 +41,15 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, reactive } from 'vue';
+import { ref, onMounted, reactive, createVNode } from 'vue';
 import { saveAs } from 'file-saver';
 import dayjs from 'dayjs';
-import { CheckOutlined, EditOutlined } from '@ant-design/icons-vue';
-import { message } from 'ant-design-vue';
+import {
+    CheckOutlined,
+    EditOutlined,
+    ExclamationCircleOutlined
+} from '@ant-design/icons-vue';
+import { Modal, message } from 'ant-design-vue';
 import _ from 'lodash';
 import DescTitle from '@/components/DescTitle.vue';
 import PlayAudioBtn from '@/components/PlayAudioBtn.vue';
@@ -176,16 +181,24 @@ const downloadAudio = (id: string) => {
 
 // 删除音频文件
 const removeAudio = async (id: string) => {
-    tableLoading.value = true;
-    try {
-        await removeAudioItem(id);
-        await getTableData();
-    } catch (err: any) {
-        const errContent = `${err.name}: ${err.message}`;
-        message.error(errContent);
-        console.error(`removeAudio: ${errContent}`)
-    }
-    tableLoading.value = false;
+    Modal.confirm({
+        // TODO: add i18n
+        title: '是否确认删除音频文件',
+        icon: createVNode(ExclamationCircleOutlined),
+        content: createVNode('div', {}, '删除后智能场景将无法使用该音频文件'),
+        async onOk() {
+            tableLoading.value = true;
+            try {
+                await removeAudioItem(id);
+                await getTableData();
+            } catch (err: any) {
+                const errContent = `${err.name}: ${err.message}`;
+                message.error(errContent);
+                console.error(`removeAudio: ${errContent}`)
+            }
+            tableLoading.value = false;
+        }
+    });
 };
 
 onMounted(async () => {

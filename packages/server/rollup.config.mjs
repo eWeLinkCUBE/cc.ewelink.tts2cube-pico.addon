@@ -14,7 +14,7 @@ export default {
         json(),
         terser(),
         typescript({ compilerOptions: { module: 'esnext' } }),
-        nodeResolve(),
+        nodeResolve({ exportConditions: ['node'] }),
         commonjs()
     ]
 };
