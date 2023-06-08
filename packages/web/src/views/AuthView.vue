@@ -25,10 +25,12 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { message } from 'ant-design-vue';
 import { getCubeToken } from '@/api';
+// import { useSseStore } from '@/stores/sse';
+// TODO: add new store
 
 /** 倒计时时长 5 分钟 */
 const COUNT_TIME = 300;
@@ -96,6 +98,9 @@ const getToken = async () => {
         message.error(errContent);
     }
 };
+
+onMounted(() => {
+});
 </script>
 
 <style lang="scss" scoped>

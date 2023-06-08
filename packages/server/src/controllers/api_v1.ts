@@ -33,6 +33,7 @@ import {
     SSE_EVENT_GET_TOKEN_START,
     eventCenter
 } from '../utils/event';
+import SSE from '../utils/sse';
 
 type ApiGetAudioListItem = {
     key: number;
@@ -91,26 +92,12 @@ apiv1.get('/api/v1/get-server-info', async (req, res) => {
 
 // SSE events
 apiv1.get('/events', async (req, res) => {
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-store');
-    res.setHeader('Connection', 'keep-alive');
-
-    const EV_SSE_SEND_HANDLER = (data: string) => {
-        res.write(data);
-    };
-    eventCenter.on(EV_SSE_SEND, EV_SSE_SEND_HANDLER);
-
-    req.on('close', () => {
-        eventCenter.removeListener(EV_SSE_SEND, EV_SSE_SEND_HANDLER);
-    });
-    req.on('finish', () => {
-        eventCenter.removeListener(EV_SSE_SEND, EV_SSE_SEND_HANDLER);
-    });
-    req.on('error', () => {
-        eventCenter.removeListener(EV_SSE_SEND, EV_SSE_SEND_HANDLER);
-    });
-
-    res.write(`event: ${SSE_EVENT_CONNECTED}\n\n`);
+    // TODO: fix bug
+    try {
+        SSE.buildStreamContext(req, res);
+    } catch (err) {
+        logger.info("build sse connection error: ", err);
+    }
 });
 
 // Get eWeLink Cube token
