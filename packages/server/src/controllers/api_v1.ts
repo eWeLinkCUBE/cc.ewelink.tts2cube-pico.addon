@@ -20,6 +20,7 @@ import {
 } from '../error';
 import { getAudioList, setAudioList } from '../store/audio';
 import { getAudioFilesDir } from '../utils/etc';
+import { SERVER_LISTEN_PORT } from '../const';
 
 type ApiGetAudioListItem = {
     key: number;
@@ -173,6 +174,7 @@ apiv1.get('/api/v1/audio/list', async (req, res) => {
         if (!audioList) {
             logger.warn(`${logType} audioList is empty`);
             logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+            _.set(result, 'data.audioList', []);
             return res.send(result);
         } else {
             const parsedAudioList: ApiGetAudioListItem[] = [];
@@ -198,6 +200,84 @@ apiv1.get('/api/v1/audio/list', async (req, res) => {
         result.msg = 'Server error';
         logger.info(`${logType} Result: ${JSON.stringify(result)}`);
         return res.send(result);
+    }
+});
+
+// iHost callback - sync audio list
+apiv1.post('/api/v1/ihost/sync-audio-list', async (req, res) => {
+    const reqMsgId = _.get(req, 'body.directive.header.message_id');
+    const reqMsgName = _.get(req, 'body.directive.header.name');
+    const logType = '(apiv1.ihost.syncAudioList))';
+
+    if (reqMsgName !== 'SyncTTSAudioList') {
+        return res.send({
+            event: {
+                header: {
+                    name: 'ErrorResponse',
+                    message_id: reqMsgId,
+                    version: '1'
+                },
+                payload: {
+                    type: 'INVALID_PARAMETERS',
+                    description: 'invalid header name'
+                }
+            }
+        });
+    }
+
+    const result: any = {
+        event: {
+            header: {
+                name: 'Response',
+                message_id: reqMsgId,
+                version: '1'
+            },
+            payload: {
+                audio_list: []
+            }
+        }
+    };
+
+    try {
+        const dirname = getAudioFilesDir();
+        const files = await fs.readdir(dirname);
+        const audioList = await getAudioList();
+        logger.debug(`${logType} audioList: ${JSON.stringify(audioList)}`);
+
+        if (!audioList) {
+            logger.warn(`${logType} audioList is empty`);
+            logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+            return res.send(result);
+        } else {
+            for (let i = 0; i < audioList.length; i++) {
+                if (files.includes(audioList[i].filename)) {
+                    result.payload.audio_list.push({
+                        url: `http://${process.env.CONFIG_CUBE_HOSTNAME}:${SERVER_LISTEN_PORT}/_audio/${audioList[i].filename}`,
+                        label: audioList[i].filename
+                    });
+                }
+            }
+            logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+            return res.send(result);
+        }
+    } catch (err: any) {
+        const errRes = {
+            event: {
+                header: {
+                    name: 'ErrorResponse',
+                    message_id: reqMsgId,
+                    version: '1'
+                },
+                payload: {
+                    type: 'INTERNAL_ERROR',
+                    description: `server internal error: ${err.message}`
+                }
+            }
+        };
+        logger.error(`${logType} ${err.name}: ${err.message}`);
+        logger.info(`${logType} Result: ${JSON.stringify(errRes)}`);
+        return res.send(errRes);
+
     }
 });
 
