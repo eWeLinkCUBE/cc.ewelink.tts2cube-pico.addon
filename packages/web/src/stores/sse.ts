@@ -1,4 +1,6 @@
 import { defineStore } from 'pinia';
+import { SERVER_PORT } from '@/api';
+import { useCountStore } from '@/stores/count';
 
 let source: null | EventSource = null;
 
@@ -21,16 +23,26 @@ export const useSseStore = defineStore('sse', {
             console.log('start SSE');
             if (source) source.close();
             const timestamp = new Date().getTime();
-            source = new EventSource(`//localhost:8323/events?id=${timestamp}`);
+            source = new EventSource(`//${location.hostname}:${SERVER_PORT}/events?id=${timestamp}`);
             source.addEventListener('open', () => {
                 // const etcStore = useEtcStore();
                 console.log('SSE connect success');
                 this.sseIsConnect = true;
             });
 
-            /** 开始获取token */
-            source.addEventListener('begin_obtain_token_report', async (event: any) => {
-                console.log('begin_obtain_token_report------------->', event.data);
+            /** 开始获取凭证 */
+            source.addEventListener('get_token_start', async (event: any) => {
+                const countStore = useCountStore();
+                // 如果当前页面没在倒计时，则开始尝试倒计时
+                if (!countStore.counting) {
+                    countStore.testCount();
+                }
+            });
+
+            /** 获取凭证结束 */
+            source.addEventListener('get_token_end', async (event: any) => {
+                const countStore = useCountStore();
+                countStore.stopCount();
             });
 
             /** SSE失败 */

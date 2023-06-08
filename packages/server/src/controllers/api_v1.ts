@@ -26,13 +26,6 @@ import {
 import { getAudioList, setAudioList } from '../store/audio';
 import { getAudioFilesDir } from '../utils/etc';
 import { SERVER_LISTEN_PORT } from '../const';
-import {
-    EV_SSE_SEND,
-    SSE_EVENT_CONNECTED,
-    SSE_EVENT_GET_TOKEN_END,
-    SSE_EVENT_GET_TOKEN_START,
-    eventCenter
-} from '../utils/event';
 import SSE from '../utils/sse';
 
 type ApiGetAudioListItem = {
@@ -62,7 +55,11 @@ apiv1.get('/api/v1/get-server-info', async (req, res) => {
         // 1. Check token existence.
         const token = await getCubeToken();
         logger.debug(`${logType} token: ${JSON.stringify(token)}`);
-        if (!token) {
+        const tokenTime = _.get(token, 'updateTime');
+        if (tokenTime) {
+            result.data.tokenUpdateTime = tokenTime;
+        }
+        if (!token || token.token === '') {
             logger.warn(`${logType} getCubeToken(): no token`);
             logger.info(`${logType} Result: ${JSON.stringify(result)}`);
             return res.send(result);
@@ -78,7 +75,6 @@ apiv1.get('/api/v1/get-server-info', async (req, res) => {
         }
 
         result.data.cubeTokenValid = true;
-        result.data.tokenUpdateTime = token.updateTime;
         logger.info(`${logType} Result: ${JSON.stringify(result)}`);
         return res.send(result);
     } catch (err: any) {
@@ -92,7 +88,6 @@ apiv1.get('/api/v1/get-server-info', async (req, res) => {
 
 // SSE events
 apiv1.get('/events', async (req, res) => {
-    // TODO: fix bug
     try {
         SSE.buildStreamContext(req, res);
     } catch (err) {
@@ -111,7 +106,11 @@ apiv1.get('/api/v1/get-cube-token', async (req, res) => {
 
     try {
         // 1. Call getBridgeAt API.
-        eventCenter.emit(`event: ${SSE_EVENT_GET_TOKEN_START}\n\n`);
+        await setCubeToken('');
+        SSE.send({
+            name: 'get_token_start',
+            data: ''
+        });
         const atRes = await getCubeBridgeAt();
         logger.debug(`${logType} atRes: ${JSON.stringify(atRes)}`);
         if (atRes.error !== ERR_SUCCESS) {
@@ -119,7 +118,10 @@ apiv1.get('/api/v1/get-cube-token', async (req, res) => {
             result.error = atRes.error;
             result.msg = atRes.msg;
             logger.info(`${logType} Result: ${JSON.stringify(result)}`);
-            eventCenter.emit(`event: ${SSE_EVENT_GET_TOKEN_END}\n\n`);
+            SSE.send({
+                name: 'get_token_end',
+                data: ''
+            });
             return res.send(result);
         } else {
             // TODO: acquire lock resource
@@ -134,7 +136,10 @@ apiv1.get('/api/v1/get-cube-token', async (req, res) => {
             result.error = engineRes.error;
             result.msg = engineRes.msg;
             logger.info(`${logType} Result: ${JSON.stringify(result)}`);
-            eventCenter.emit(`event: ${SSE_EVENT_GET_TOKEN_END}\n\n`);
+            SSE.send({
+                name: 'get_token_end',
+                data: ''
+            });
             return res.send(result);
         }
 
@@ -163,7 +168,10 @@ apiv1.get('/api/v1/get-cube-token', async (req, res) => {
                 result.error = regRes.error;
                 result.msg = regRes.msg;
                 logger.info(`${logType} Result: ${JSON.stringify(result)}`);
-                eventCenter.emit(`event: ${SSE_EVENT_GET_TOKEN_END}\n\n`);
+                SSE.send({
+                    name: 'get_token_end',
+                    data: ''
+                });
                 return res.send(result);
             } else {
                 // TODO: acquire lock resource
@@ -173,7 +181,10 @@ apiv1.get('/api/v1/get-cube-token', async (req, res) => {
         }
 
         logger.info(`${logType} Result: ${JSON.stringify(result)}`);
-        eventCenter.emit(`event: ${SSE_EVENT_GET_TOKEN_END}\n\n`);
+        SSE.send({
+            name: 'get_token_end',
+            data: ''
+        });
         return res.send(result);
     } catch (err: any) {
         logger.error(`${logType} ${err.name}: ${err.message}`);

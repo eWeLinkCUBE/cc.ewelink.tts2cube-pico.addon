@@ -81,7 +81,8 @@ const columns = [
     },
     {
         title: i18n.global.t('text'),
-        dataIndex: 'text'
+        dataIndex: 'text',
+        width: '35%'
     },
     {
         title: i18n.global.t('configuration'),
@@ -93,7 +94,8 @@ const columns = [
     },
     {
         title: i18n.global.t('operation'),
-        dataIndex: 'operation'
+        dataIndex: 'operation',
+        width: '150'
     }
 ];
 

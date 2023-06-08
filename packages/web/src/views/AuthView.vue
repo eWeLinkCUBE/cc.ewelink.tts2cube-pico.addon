@@ -16,90 +16,60 @@
                 <a-button
                     type="primary"
                     class="get-token-btn"
-                    :loading="btnLoading"
+                    :loading="countStore.counting"
                     @click="getToken"
-                >{{ btnLoading ? countDownText : $t('get_token') }}</a-button>
+                >{{ countStore.counting ? countStore.countText : $t('get_token') }}</a-button>
             </div>
         </div>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import _ from 'lodash';
+import { onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { message } from 'ant-design-vue';
-import { getCubeToken } from '@/api';
-// import { useSseStore } from '@/stores/sse';
-// TODO: add new store
-
-/** 倒计时时长 5 分钟 */
-const COUNT_TIME = 300;
+import { getCubeToken, getServerInfo } from '@/api';
+import { useSseStore } from '@/stores/sse';
+import { useCountStore } from '@/stores/count';
 
 const router = useRouter();
-const btnLoading = ref(false);
-const countDownText = ref('');
-
-let timerId: any = null;
-let timeCount = COUNT_TIME;
-
-/** 获取时间字符串 */
-const getTimeStr = (n: number) => {
-    const min = Math.floor(n / 60);
-    const sec = n - (min * 60);
-    let str = '';
-    if (min) {
-        str += `${min}min`;
-    }
-    if (sec) {
-        str += `${sec}s`;
-    }
-    return str;
-};
-
-/** 停止倒计时 */
-const stopCountDown = () => {
-    btnLoading.value = false;
-    if (timerId) {
-        clearInterval(timerId);
-    }
-    timerId = null;
-    timeCount = COUNT_TIME;
-};
-
-/** 开始倒计时 */
-const startCountDown = () => {
-    stopCountDown();
-
-    btnLoading.value = true;
-    countDownText.value = getTimeStr(--timeCount);
-    timerId = setInterval(() => {
-        if (--timeCount > 0) {
-            countDownText.value = getTimeStr(timeCount);
-        } else {
-            stopCountDown();
-        }
-    }, 1000);
-};
+const sseStore = useSseStore();
+const countStore = useCountStore();
 
 const getToken = async () => {
     try {
-        startCountDown();
+        countStore.startCount();
         const res = await getCubeToken();
-        stopCountDown();
-        if (res.data.error === 0) {
-            router.push({ name: 'home' });
-        } else {
+        const resError = _.get(res, 'data.error');
+        if (resError !== 0) {
             message.error(`Get token failed`);
         }
+        countStore.stopCount();
     } catch (err: any) {
-        stopCountDown();
+        countStore.stopCount();
         const errContent = `${err.name}: ${err.message}`;
         console.error(`getCubeToken() failed: ${errContent}`);
         message.error(errContent);
     }
 };
 
+watch(() => countStore.counting, async (newVal) => {
+    if (!newVal) {
+        console.log('Count stop');
+        // 倒计时停止
+        const res = await getServerInfo();
+        const resError = _.get(res, 'data.error');
+        const resTokenValid = _.get(res, 'data.data.cubeTokenValid');
+        if (resError === 0 && resTokenValid) {
+            router.push({ name: 'home' });
+        }
+    }
+});
+
 onMounted(() => {
+    sseStore.startSse();
+    countStore.testCount();
 });
 </script>
 
