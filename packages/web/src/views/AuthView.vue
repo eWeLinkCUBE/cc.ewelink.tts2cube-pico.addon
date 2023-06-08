@@ -18,7 +18,7 @@
                     class="get-token-btn"
                     :loading="btnLoading"
                     @click="getToken"
-                >{{ $t('get_token') }}</a-button>
+                >{{ btnLoading ? countDownText : $t('get_token') }}</a-button>
             </div>
         </div>
     </div>
@@ -30,26 +30,71 @@ import { useRouter } from 'vue-router';
 import { message } from 'ant-design-vue';
 import { getCubeToken } from '@/api';
 
+/** 倒计时时长 5 分钟 */
+const COUNT_TIME = 300;
+
 const router = useRouter();
 const btnLoading = ref(false);
+const countDownText = ref('');
+
+let timerId: any = null;
+let timeCount = COUNT_TIME;
+
+/** 获取时间字符串 */
+const getTimeStr = (n: number) => {
+    const min = Math.floor(n / 60);
+    const sec = n - (min * 60);
+    let str = '';
+    if (min) {
+        str += `${min}min`;
+    }
+    if (sec) {
+        str += `${sec}s`;
+    }
+    return str;
+};
+
+/** 停止倒计时 */
+const stopCountDown = () => {
+    btnLoading.value = false;
+    if (timerId) {
+        clearInterval(timerId);
+    }
+    timerId = null;
+    timeCount = COUNT_TIME;
+};
+
+/** 开始倒计时 */
+const startCountDown = () => {
+    stopCountDown();
+
+    btnLoading.value = true;
+    countDownText.value = getTimeStr(--timeCount);
+    timerId = setInterval(() => {
+        if (--timeCount > 0) {
+            countDownText.value = getTimeStr(timeCount);
+        } else {
+            stopCountDown();
+        }
+    }, 1000);
+};
 
 const getToken = async () => {
-    btnLoading.value = true;
-
     try {
+        startCountDown();
         const res = await getCubeToken();
+        stopCountDown();
         if (res.data.error === 0) {
             router.push({ name: 'home' });
         } else {
             message.error(`Get token failed`);
         }
     } catch (err: any) {
+        stopCountDown();
         const errContent = `${err.name}: ${err.message}`;
         console.error(`getCubeToken() failed: ${errContent}`);
         message.error(errContent);
     }
-
-    btnLoading.value = false;
 };
 </script>
 

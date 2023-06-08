@@ -10,7 +10,12 @@ import {
     getCubeTtsEngineList,
     registerCubeTtsEngine
 } from '../api/cube';
-import { getCubeToken, getTtsEngineId, setCubeToken, setTtsEngineId } from '../store/token';
+import {
+    getCubeToken,
+    getTtsEngineId,
+    setCubeToken,
+    setTtsEngineId
+} from '../store/token';
 import {
     ERR_SUCCESS,
     ERR_SERVER_INTERNAL,
@@ -21,6 +26,13 @@ import {
 import { getAudioList, setAudioList } from '../store/audio';
 import { getAudioFilesDir } from '../utils/etc';
 import { SERVER_LISTEN_PORT } from '../const';
+import {
+    EV_SSE_SEND,
+    SSE_EVENT_CONNECTED,
+    SSE_EVENT_GET_TOKEN_END,
+    SSE_EVENT_GET_TOKEN_START,
+    eventCenter
+} from '../utils/event';
 
 type ApiGetAudioListItem = {
     key: number;
@@ -38,7 +50,8 @@ apiv1.get('/api/v1/get-server-info', async (req, res) => {
     const result = {
         error: 0,
         data: {
-            cubeTokenValid: false
+            cubeTokenValid: false,
+            tokenUpdateTime: 0
         },
         msg: 'Success'
     };
@@ -64,6 +77,7 @@ apiv1.get('/api/v1/get-server-info', async (req, res) => {
         }
 
         result.data.cubeTokenValid = true;
+        result.data.tokenUpdateTime = token.updateTime;
         logger.info(`${logType} Result: ${JSON.stringify(result)}`);
         return res.send(result);
     } catch (err: any) {
@@ -73,6 +87,30 @@ apiv1.get('/api/v1/get-server-info', async (req, res) => {
         logger.info(`${logType} Result: ${JSON.stringify(result)}`);
         return res.send(result);
     }
+});
+
+// SSE events
+apiv1.get('/events', async (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('Connection', 'keep-alive');
+
+    const EV_SSE_SEND_HANDLER = (data: string) => {
+        res.write(data);
+    };
+    eventCenter.on(EV_SSE_SEND, EV_SSE_SEND_HANDLER);
+
+    req.on('close', () => {
+        eventCenter.removeListener(EV_SSE_SEND, EV_SSE_SEND_HANDLER);
+    });
+    req.on('finish', () => {
+        eventCenter.removeListener(EV_SSE_SEND, EV_SSE_SEND_HANDLER);
+    });
+    req.on('error', () => {
+        eventCenter.removeListener(EV_SSE_SEND, EV_SSE_SEND_HANDLER);
+    });
+
+    res.write(`event: ${SSE_EVENT_CONNECTED}\n\n`);
 });
 
 // Get eWeLink Cube token
@@ -86,6 +124,7 @@ apiv1.get('/api/v1/get-cube-token', async (req, res) => {
 
     try {
         // 1. Call getBridgeAt API.
+        eventCenter.emit(`event: ${SSE_EVENT_GET_TOKEN_START}\n\n`);
         const atRes = await getCubeBridgeAt();
         logger.debug(`${logType} atRes: ${JSON.stringify(atRes)}`);
         if (atRes.error !== ERR_SUCCESS) {
@@ -93,6 +132,7 @@ apiv1.get('/api/v1/get-cube-token', async (req, res) => {
             result.error = atRes.error;
             result.msg = atRes.msg;
             logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+            eventCenter.emit(`event: ${SSE_EVENT_GET_TOKEN_END}\n\n`);
             return res.send(result);
         } else {
             // TODO: acquire lock resource
@@ -107,6 +147,7 @@ apiv1.get('/api/v1/get-cube-token', async (req, res) => {
             result.error = engineRes.error;
             result.msg = engineRes.msg;
             logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+            eventCenter.emit(`event: ${SSE_EVENT_GET_TOKEN_END}\n\n`);
             return res.send(result);
         }
 
@@ -135,6 +176,7 @@ apiv1.get('/api/v1/get-cube-token', async (req, res) => {
                 result.error = regRes.error;
                 result.msg = regRes.msg;
                 logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+                eventCenter.emit(`event: ${SSE_EVENT_GET_TOKEN_END}\n\n`);
                 return res.send(result);
             } else {
                 // TODO: acquire lock resource
@@ -144,6 +186,7 @@ apiv1.get('/api/v1/get-cube-token', async (req, res) => {
         }
 
         logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+        eventCenter.emit(`event: ${SSE_EVENT_GET_TOKEN_END}\n\n`);
         return res.send(result);
     } catch (err: any) {
         logger.error(`${logType} ${err.name}: ${err.message}`);
@@ -251,7 +294,7 @@ apiv1.post('/api/v1/ihost/sync-audio-list', async (req, res) => {
         } else {
             for (let i = 0; i < audioList.length; i++) {
                 if (files.includes(audioList[i].filename)) {
-                    result.payload.audio_list.push({
+                    result.event.payload.audio_list.push({
                         url: `http://${process.env.CONFIG_CUBE_HOSTNAME}:${SERVER_LISTEN_PORT}/_audio/${audioList[i].filename}`,
                         label: audioList[i].filename
                     });
