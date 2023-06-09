@@ -7,7 +7,8 @@ ENV ENABLE_MIDDLEWARE_LOG=1 \
     # for demo version
     CONFIG_AUDIO_DATA_PATH=/workspace/ewelink-cube-tts-addon \
     CONFIG_TOKEN_DATA_PATH=/data \
-    LOG_LEVEL=info
+    LOG_LEVEL=info \
+    APP_NAME="TTS API test"
 
 WORKDIR /workspace/ewelink-cube-tts-addon
 

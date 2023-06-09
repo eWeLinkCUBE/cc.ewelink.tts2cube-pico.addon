@@ -43,7 +43,7 @@ export async function getCubeBridgeAt() {
     if (!cubeApiClient) {
         result.error = ERR_NO_CUBE_API_CLIENT;
     } else {
-        const res = await cubeApiClient.getBridgeAT({ timeout: GET_BRIDGE_AT_TIMEOUT });
+        const res = await cubeApiClient.getBridgeAT({ timeout: GET_BRIDGE_AT_TIMEOUT }, process.env.APP_NAME);
         logger.debug(`(cubeApi.getBridgeAt) res: ${JSON.stringify(res)}`);
         if (res.error === 0) {
             result.data.token = res.data.token;
@@ -95,7 +95,7 @@ export async function registerCubeTtsEngine() {
         result.error = ERR_NO_CUBE_API_CLIENT;
     } else {
         const res = await cubeApiClient.registerTtsEngine({
-            serviceName: 'TTS addon',
+            serviceName: process.env.APP_NAME,
             serviceAddr: `http://${EWELINK_CUBE_HOSTNAME}:${SERVER_LISTEN_PORT}/api/v1/ihost/sync-audio-list`
         });
         logger.debug(`(cubeApi.registerTtsEngine) res: ${JSON.stringify(res)}`);

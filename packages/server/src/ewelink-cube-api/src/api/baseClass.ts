@@ -43,15 +43,15 @@ export default abstract class baseClass {
 	/**
 	 * 获取网关访问凭证
 	 */
-	async getBridgeAT({ timeout = 120000, interval = 2000 }: { timeout?: number, interval?: number }) {
+	async getBridgeAT({ timeout = 120000, interval = 2000 }: { timeout?: number, interval?: number }, appName?: string) {
 		return new Promise(async (resolve) => {
 			//	start interval
 			//	nspanelpro first request maybe get response
-			const resp = await this.getBridgeATHandler()
+			const resp = await this.getBridgeATHandler(appName)
 			resp && resolve(resp)
 
 			this.interval = setInterval(async () => {
-				const resp = await this.getBridgeATHandler()
+				const resp = await this.getBridgeATHandler(appName)
 				if (resp) {
 					this.interval && clearInterval(this.interval)
 					this.timeout && clearTimeout(this.timeout)
@@ -65,9 +65,10 @@ export default abstract class baseClass {
 			}, timeout)
 		})
 	}
-	private async getBridgeATHandler() {
+	private async getBridgeATHandler(appName?: string) {
 		// console.log('----->', new Date().getTime() - this.time);
-		const resp = await this.httpRequest({ path: EPath.BRIDGE_TOKEN, method: EMethod.GET, isNeedAT: false })
+		const queryParams = appName ? { app_name: appName } : {};
+		const resp = await this.httpRequest({ path: EPath.BRIDGE_TOKEN, method: EMethod.GET, isNeedAT: false, params: queryParams })
 		if (resp.error === 0) {
 			this.interval && clearInterval(this.interval)
 			//	set at
