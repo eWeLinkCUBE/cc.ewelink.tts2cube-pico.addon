@@ -57,3 +57,9 @@ server.use(apiv1);
 server.listen(SERVER_LISTEN_PORT, SERVER_LISTEN_HOST, () => {
     logger.info(`Server listen at port ${SERVER_LISTEN_PORT}`);
 });
+
+// Log signal
+process.on('SIGTERM', () => {
+    logger.info('................................ GOT SIGTERM ................................');
+    process.exit(0);
+});
