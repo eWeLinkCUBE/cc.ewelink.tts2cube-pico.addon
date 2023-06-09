@@ -9,7 +9,8 @@ const zhCN = {
     'text': '文本',
     'configuration': '配置',
     'created_time': '时间',
-    'operation': '操作'
+    'operation': '操作',
+    'filename_empty': '文件名不能为空'
 };
 
 export default zhCN;

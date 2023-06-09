@@ -9,7 +9,8 @@ const enUS = {
     'text': 'Text',
     'configuration': 'Configuration',
     'created_time': 'Created',
-    'operation': 'Action'
+    'operation': 'Action',
+    'filename_empty': 'Filename empty'
 };
 
 export default enUS;

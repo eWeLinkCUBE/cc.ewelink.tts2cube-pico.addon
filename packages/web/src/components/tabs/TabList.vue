@@ -15,7 +15,7 @@
                         <div class="editable-cell">
                             <!-- 点击保存按钮保存 -->
                             <div v-if="editableData[record.key]" class="editable-cell-input-wrapper">
-                                <a-input v-model:value="editableData[record.key].filename" @pressEnter="() => saveCell(record)" />
+                                <a-input v-model:value="editableData[record.key].filename" @pressEnter="() => saveCell(record)" maxLength="50" />
                                 <check-outlined class="editable-cell-icon-check" @click="() => saveCell(record)" />
                             </div>
 
@@ -77,20 +77,24 @@ const columns = [
     {
         title: i18n.global.t('file_name'),
         dataIndex: 'filename',
-        width: '25%'
+        width: '25%',
+        ellipsis: true
     },
     {
         title: i18n.global.t('text'),
         dataIndex: 'text',
-        width: '35%'
+        width: '35%',
+        ellipsis: true
     },
     {
         title: i18n.global.t('configuration'),
-        dataIndex: 'config'
+        dataIndex: 'config',
+        width: '150'
     },
     {
         title: i18n.global.t('created_time'),
-        dataIndex: 'time'
+        dataIndex: 'time',
+        width: '150'
     },
     {
         title: i18n.global.t('operation'),
@@ -141,6 +145,7 @@ const getTableData = async () => {
 const saveCell = async (record: any) => {
     const key = record.key;
     if (editableData[key].filename.trim() === '') {
+        message.error(i18n.global.t('filename_empty'));
         return;
     }
 
@@ -151,7 +156,7 @@ const saveCell = async (record: any) => {
         setTimeout(async () => {
             tableLoading.value = true;
             try {
-                await updateAudioItem({ id: updateId, filename: updateFilename });
+                await updateAudioItem({ id: updateId, filename: updateFilename.replace(/\s*/g, '') });
                 await getTableData();
             } catch (err: any) {
                 const errContent = `${err.name}: ${err.message}`;
