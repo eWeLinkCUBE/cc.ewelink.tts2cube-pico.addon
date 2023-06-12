@@ -21,7 +21,7 @@
 
                             <!-- 点击编辑按钮进入编辑模式 -->
                             <div v-else class="editable-cell-text-wrapper">
-                                {{ text || ' ' }}
+                                <span>{{ text || ' ' }}</span>
                                 <edit-outlined class="editable-cell-icon" @click="() => editCell(record.key)" />
                             </div>
                         </div>
@@ -78,7 +78,6 @@ const columns = [
         title: i18n.global.t('file_name'),
         dataIndex: 'filename',
         width: '25%',
-        ellipsis: true
     },
     {
         title: i18n.global.t('text'),
@@ -275,5 +274,13 @@ onMounted(async () => {
 }
 .editable-cell:hover .editable-cell-icon {
   display: inline-block;
+}
+
+.editable-cell-text-wrapper span {
+    width: 100%;
+    display: inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 </style>

@@ -10,7 +10,7 @@ const enUS = {
     'configuration': 'Configuration',
     'created_time': 'Created',
     'operation': 'Action',
-    'filename_empty': 'Filename empty'
+    'filename_empty': '音频名称不允许为空格（英文）'
 };
 
 export default enUS;

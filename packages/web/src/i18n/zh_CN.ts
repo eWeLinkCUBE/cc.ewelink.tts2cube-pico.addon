@@ -10,7 +10,7 @@ const zhCN = {
     'configuration': '配置',
     'created_time': '时间',
     'operation': '操作',
-    'filename_empty': '文件名不能为空'
+    'filename_empty': '音频名称不允许为空格（中文）'
 };
 
 export default zhCN;
