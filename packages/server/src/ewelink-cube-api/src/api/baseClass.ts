@@ -11,6 +11,8 @@ import IHttpConfig from "../ts/interface/IHttpConfig"
 import IResponse from "../ts/interface/IResponse"
 import ISseEvent from '../ts/interface/ISseEvent'
 
+import logger from '../../../logger';
+
 export default abstract class baseClass {
 	private ip: string = ''
 	private at: string = 'fcb79458-b3a2-4255-b2ca-5fef83dae38d'
@@ -48,7 +50,12 @@ export default abstract class baseClass {
 			//	start interval
 			//	nspanelpro first request maybe get response
 			const resp = await this.getBridgeATHandler(appName)
-			resp && resolve(resp)
+			if (resp) {
+				this.interval && clearInterval(this.interval);
+				this.timeout && clearTimeout(this.timeout);
+				resolve(resp);
+				return;
+			}
 
 			this.interval = setInterval(async () => {
 				const resp = await this.getBridgeATHandler(appName)
@@ -68,7 +75,9 @@ export default abstract class baseClass {
 	private async getBridgeATHandler(appName?: string) {
 		// console.log('----->', new Date().getTime() - this.time);
 		const queryParams = appName ? { app_name: appName } : {};
+		// logger.info('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT');
 		const resp = await this.httpRequest({ path: EPath.BRIDGE_TOKEN, method: EMethod.GET, isNeedAT: false, params: queryParams })
+		// logger.info(`TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA, ${JSON.stringify(resp)}`);
 		if (resp.error === 0) {
 			this.interval && clearInterval(this.interval)
 			//	set at

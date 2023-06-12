@@ -49,7 +49,8 @@ apiv1.get('/api/v1/get-server-info', async (req, res) => {
         },
         msg: 'Success'
     };
-    const logType = '(apiv1.getServerInfo)';
+    const requestId = _.get(req, 'requestId');
+    const logType = `[${requestId}] (apiv1.getServerInfo)`;
 
     try {
         // 1. Check token existence.
@@ -102,7 +103,8 @@ apiv1.get('/api/v1/get-cube-token', async (req, res) => {
         data: {},
         msg: 'Success'
     };
-    const logType = '(apiv1.getCubeToken)';
+    const requestId = _.get(req, 'requestId');
+    const logType = `[${requestId}] (apiv1.getCubeToken)`;
 
     try {
         // 1. Call getBridgeAt API.

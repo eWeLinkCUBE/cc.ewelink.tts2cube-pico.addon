@@ -46,9 +46,11 @@ export const useSseStore = defineStore('sse', {
             });
 
             /** SSE失败 */
-            source.addEventListener('error', async (event: any) => {
+            source.addEventListener('error', (event: any) => {
                 console.log('SSE connect error, reboot');
-                await this.startSse();
+                setTimeout(() => {
+                    this.startSse();
+                }, 10000);
             });
         },
     }
