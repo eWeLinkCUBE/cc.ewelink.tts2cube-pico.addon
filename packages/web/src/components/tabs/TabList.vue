@@ -62,13 +62,16 @@ import {
 import i18n from '@/i18n';
 
 type TableDataItem = {
-    // 以下数据由接口返回
+    // 接口返回数据
     key: number;
     id: string;
     filename: string;
     text: string;
     config: string;
     time: string;
+    downloadUrl: string;
+
+    // 拼装数据
     url: string;
 };
 
@@ -117,7 +120,7 @@ const parseTableData = (data: TableDataItem[]) => {
     for (const item of data) {
         const timeObj = new Date(item.time);
         item.time = dayjs(timeObj).format('YYYY/MM/DD');
-        item.url = `http://${location.hostname}:${SERVER_PORT}/_audio/${item.filename}`;
+        item.url = `http://${location.hostname}:${SERVER_PORT}/${item.downloadUrl}`;
         result.push(item);
     }
     return result;

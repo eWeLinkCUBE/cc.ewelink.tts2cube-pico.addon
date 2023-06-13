@@ -6,7 +6,10 @@
                 <h1>{{ $t('get_gateway_token') }}</h1>
             </div>
             <div class="img">
-                <img src="@/assets/get-token-tutorial.png" alt="Get token tutorial">
+                <a-carousel >
+                    <img :src="img01Src" alt="get token tutorial">
+                    <img :src="img02Src" alt="get token tutorial">
+                </a-carousel>
             </div>
             <div class="desc">
                 <p>{{ $t('step_1_click_get_token_button') }}</p>
@@ -26,16 +29,33 @@
 
 <script lang="ts" setup>
 import _ from 'lodash';
-import { onMounted, watch } from 'vue';
+import { onMounted, watch, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { message } from 'ant-design-vue';
 import { getCubeToken, getServerInfo } from '@/api';
 import { useSseStore } from '@/stores/sse';
 import { useCountStore } from '@/stores/count';
+import i18n from '@/i18n';
+import EnImg01 from '@/assets/en_get_token_01.png';
+import EnImg02 from '@/assets/en_get_token_02.png';
+import CnImg01 from '@/assets/cn_get_token_01.png';
+import CnImg02 from '@/assets/cn_get_token_02.png';
 
 const router = useRouter();
 const sseStore = useSseStore();
 const countStore = useCountStore();
+
+const img01Src = computed(() => {
+    return i18n.global.locale === 'en-us'
+        ? EnImg01
+        : CnImg01;
+});
+
+const img02Src = computed(() => {
+    return i18n.global.locale === 'en-us'
+        ? EnImg02
+        : CnImg02;
+});
 
 const getToken = async () => {
     try {
@@ -113,5 +133,21 @@ onMounted(() => {
             }
         }
     }
+}
+
+:deep(.ant-carousel .slick-dots li button) {
+    width: 8px;
+    height: 8px;
+    margin-right: 10px;
+    background-color: #bbbbbb;
+    border-radius: 50%;
+}
+
+:deep(.ant-carousel .slick-dots li.slick-active) {
+    width: 16px;
+}
+
+:deep(.ant-carousel .slick-dots-bottom) {
+    bottom: 0;
 }
 </style>

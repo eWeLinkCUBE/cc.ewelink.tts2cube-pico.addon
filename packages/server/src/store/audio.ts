@@ -30,6 +30,7 @@ export type AudioItem = {
     text: string;
     config: string;
     createdAt: number;
+    label?: string;
 };
 
 export async function initAudioStore() {

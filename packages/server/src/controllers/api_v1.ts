@@ -35,6 +35,7 @@ type ApiGetAudioListItem = {
     text: string;
     config: string;
     time: number;
+    downloadUrl: string;
 };
 
 const apiv1 = express.Router();
@@ -226,10 +227,11 @@ apiv1.get('/api/v1/audio/list', async (req, res) => {
                     parsedAudioList.push({
                         key: i,
                         id: audioList[i].id,
-                        filename: audioList[i].filename,
+                        filename: audioList[i].label || audioList[i].filename,
                         text: audioList[i].text,
                         config: audioList[i].config,
-                        time: audioList[i].createdAt
+                        time: audioList[i].createdAt,
+                        downloadUrl: `_audio/${audioList[i].filename}`
                     });
                 }
             }
@@ -296,7 +298,7 @@ apiv1.post('/api/v1/ihost/sync-audio-list', async (req, res) => {
                 if (files.includes(audioList[i].filename)) {
                     result.event.payload.audio_list.push({
                         url: `http://${process.env.CONFIG_CUBE_HOSTNAME}:${SERVER_LISTEN_PORT}/_audio/${audioList[i].filename}`,
-                        label: audioList[i].filename
+                        label: audioList[i].label || audioList[i].filename
                     });
                 }
             }
@@ -422,6 +424,7 @@ apiv1.put('/api/v1/audio', async (req, res) => {
                 logger.info(`${logType} Result: ${JSON.stringify(result)}`);
                 return res.send(result);
             } else {
+                /*
                 // Update real filename.
                 const dirname = getAudioFilesDir();
                 const files = await fs.readdir(dirname);
@@ -434,9 +437,10 @@ apiv1.put('/api/v1/audio', async (req, res) => {
                     const newFilename = path.join(dirname, filename);
                     await fs.rename(oldFilename, newFilename);
                 }
+                */
 
                 // Update store data.
-                audioList[i].filename = filename;
+                audioList[i].label = filename;
                 await setAudioList(audioList);
                 logger.info(`${logType} Result: ${JSON.stringify(result)}`);
                 return res.send(result);

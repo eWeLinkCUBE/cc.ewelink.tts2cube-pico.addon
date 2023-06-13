@@ -4,6 +4,7 @@ import {
     Table,
     ConfigProvider,
     Input,
+    Carousel,
     Progress
 } from 'ant-design-vue';
 
@@ -23,6 +24,7 @@ app.use(Button);
 app.use(Table);
 app.use(ConfigProvider);
 app.use(Input);
+app.use(Carousel);
 app.use(Progress);
 
 app.mount('#app');
