@@ -17,11 +17,13 @@ export const TAB_LIST = [
         name: TAB_NAME_LIST,
         component: TabList
     },
+    /* 这个选项被合并到语音合成页面，以防万一，留着。
     {
         id: 2,
         name: TAB_NAME_SETTINGS,
         component: TabSettings
     }
+    */
 ]
 
 export const useTabStore = defineStore('tab', {

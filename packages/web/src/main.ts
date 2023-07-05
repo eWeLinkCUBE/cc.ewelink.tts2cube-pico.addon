@@ -6,6 +6,7 @@ import {
     Input,
     Carousel,
     Select,
+    Radio,
     Progress
 } from 'ant-design-vue';
 
@@ -28,5 +29,6 @@ app.use(Input);
 app.use(Carousel);
 app.use(Progress);
 app.use(Select);
+app.use(Radio);
 
 app.mount('#app');
