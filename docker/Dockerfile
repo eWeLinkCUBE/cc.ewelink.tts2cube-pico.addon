@@ -12,6 +12,8 @@ ENV ENABLE_MIDDLEWARE_LOG=1 \
 
 WORKDIR /workspace/ewelink-cube-tts-addon
 
+RUN apk add picotts --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing/
+
 COPY . .
 
 CMD ["node", "server/index.js"]
