@@ -5,6 +5,7 @@ import {
     ConfigProvider,
     Input,
     Carousel,
+    Select,
     Progress
 } from 'ant-design-vue';
 
@@ -26,5 +27,6 @@ app.use(ConfigProvider);
 app.use(Input);
 app.use(Carousel);
 app.use(Progress);
+app.use(Select);
 
 app.mount('#app');
