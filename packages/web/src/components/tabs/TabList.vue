@@ -31,8 +31,7 @@
                     <template v-else-if="column.dataIndex === 'operation'">
                         <PlayAudioBtn class="operation-icon" :audio-url="record.url" />
                         <img class="operation-icon" @click="() => downloadAudio(record.id)" src="@/assets/download.png" alt="download icon">
-                        <!-- TODO: hide delete button for demo version -->
-                        <!-- <img class="operation-icon" @click="() => removeAudio(record.id)" src="@/assets/delete.png" alt="delete icon"> -->
+                        <img class="operation-icon" @click="() => removeAudio(record.id)" src="@/assets/delete.png" alt="delete icon">
                     </template>
                 </template>
             </a-table>
