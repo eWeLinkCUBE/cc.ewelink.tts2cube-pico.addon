@@ -19,6 +19,22 @@ export interface GenerateAudioFileParams {
 }
 
 /**
+ * Escape string before generate audio file.
+ *
+ * @param s Input string
+ */
+export function escapeText(s: string) {
+    let result = '';
+    for (const c of s) {
+        if (c === '"' || c === '$' || c === '`' || c === '\\') {
+            result += '\\';
+        }
+        result += c;
+    }
+    return result;
+}
+
+/**
  * Generate audo file. Success return 0, otherwise -1.
  *
  * @param params TTS params
@@ -40,7 +56,7 @@ export async function generateAudioFile(params: GenerateAudioFileParams) {
             inputText
         } = params;
         const filename = path.join(getAudioFilesDir(), audioFilename);
-        execSync(`pico2wave -l ${language} -w ${filename} '${inputText}'`);
+        execSync(`pico2wave -l ${language} -w ${filename} "${escapeText(inputText)}"`);
         return 0;
     } catch (err: any) {
         logger.error(`${logType} error: ${err.message}`);
