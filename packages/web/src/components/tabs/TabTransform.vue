@@ -31,11 +31,37 @@
             </div>
             <div class="content-item">
                 <div class="trans-play-btn-wrap">
+                    <!-- 转换并播放按钮 -->
                     <a-button
+                        v-show="btnType === BTN_TYPE_INIT"
                         class="trans-play-btn"
                         type="primary"
                         @click="transformText"
                     >转换并播放</a-button>
+
+                    <!-- 恢复播放按钮 -->
+                    <a-button
+                        v-show="btnType === BTN_TYPE_PAUSED"
+                        class="trans-play-btn"
+                        @click="continuePlayAudio"
+                    >
+                        <template #icon>
+                            <img src="@/assets/play.png" class="play-icon" alt="play icon">
+                        </template>
+                        恢复播放
+                    </a-button>
+
+                    <!-- 播放中按钮 -->
+                    <a-button
+                        v-show="btnType === BTN_TYPE_PLAYING"
+                        class="trans-play-btn"
+                        @click="pausePlayAudio"
+                    >
+                        <template #icon>
+                            <img src="@/assets/playing.gif" class="playing-icon" alt="playing icon">
+                        </template>
+                        播放中
+                    </a-button>
                 </div>
             </div>
         </div>
@@ -44,7 +70,9 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
+import { message } from 'ant-design-vue';
 import DescTitle from '@/components/DescTitle.vue';
+import { generateAudioFile } from '@/api';
 
 /** 合成音频语言选项 */
 const LANGUAGE_OPTIONS = [
@@ -84,23 +112,54 @@ const LANGUAGE_OPTIONS = [
 const IF_STORE_OPTIONS = [
     {
         label: '是',
-        value: 'yes'
+        value: true
     },
     {
         label: '否',
-        value: 'no'
+        value: false
     }
 ];
+
+const BTN_TYPE_INIT = 0;       /* 按钮类型：初始 */
+const BTN_TYPE_PLAYING = 1;    /* 按钮类型：正在播放音频 */
+const BTN_TYPE_PAUSED = 2;     /* 按钮类型：音频播放已暂停 */
 
 /** 合成音频的语言 */
 const languageValue = ref('');
 /** 合成音频所需的输入文本 */
 const inputText = ref('');
 /** 是否保存音频文件 */
-const ifStoreValue = ref('yes');
+const ifStoreValue = ref(true);
+/** 按钮类型 */
+const btnType = ref(BTN_TYPE_INIT);
 
-const transformText = () => {
-    console.log('transform text');
+const transformText = async () => {
+    if (inputText.value === '') {
+        message.error('请输入转换文本');
+        return;
+    }
+
+    try {
+        const res = await generateAudioFile({
+            language: languageValue.value,
+            inputText: inputText.value,
+            save: ifStoreValue.value
+        });
+        if (res.data.error === 0) {
+            btnType.value = BTN_TYPE_PLAYING;
+            console.log(res.data.data);
+        }
+    } catch (err) {
+        console.error(err);
+    }
+};
+
+const continuePlayAudio = () => {
+    btnType.value = BTN_TYPE_PLAYING;
+};
+
+const pausePlayAudio = () => {
+    btnType.value = BTN_TYPE_PAUSED;
 };
 
 onMounted(() => {
@@ -132,6 +191,13 @@ onMounted(() => {
                 width: 200px;
                 height: 40px;
                 border-radius: 8px;
+                .play-icon {
+                    width: 20px;
+                    margin-right: 10px;
+                }
+                .playing-icon {
+                    margin-right: 8px;
+                }
             }
         }
         .select.language {

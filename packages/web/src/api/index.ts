@@ -46,7 +46,7 @@ export async function removeAudioItem(id: string) {
     });
 }
 
-export async function updateAudioItem(params: { id: string; filename: string}) {
+export async function updateAudioItem(params: { id: string; filename: string; }) {
     const { id, filename } = params;
     const url = '/audio';
     return await axios({
@@ -57,5 +57,15 @@ export async function updateAudioItem(params: { id: string; filename: string}) {
             id,
             filename
         }
+    });
+}
+
+export async function generateAudioFile(params: { language: string; inputText: string; save: boolean; }) {
+    const url = '/audio';
+    return await axios({
+        method: 'POST',
+        baseURL: API_BASEURL,
+        url,
+        data: params
     });
 }
