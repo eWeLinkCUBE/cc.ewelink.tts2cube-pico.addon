@@ -1,7 +1,9 @@
+import fs from 'node:fs/promises';
 import process from 'node:process';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 import express from 'express';
+import schedule from 'node-schedule';
 import log from './middlewares/log';
 import auth from './middlewares/auth';
 import apiv1 from './controllers/api_v1';
@@ -66,11 +68,31 @@ server.listen(SERVER_LISTEN_PORT, SERVER_LISTEN_HOST, () => {
     const audioCacheDir = getAudioCacheFilesDir();
     execSync(`rm -rf ${audioCacheDir} && mkdir ${audioCacheDir}`);
 
-    // TODO: start sched(remove audio cache files)
+    // Start remove audio cache files schedule
+    schedule.scheduleJob('0 0 * * * *', async () => {
+        try {
+            const cleanTime = Date.now() - 600000;  // 10 mins ago
+            const dirname = getAudioCacheFilesDir();
+            const filenameList = await fs.readdir(dirname);
+            const removeList = [];
+
+            for (const filename of filenameList) {
+                const fileCreateTime = filename.slice(0, -4);   // '123456.wav' -> '123456'
+                if (parseInt(fileCreateTime) < cleanTime) {
+                    removeList.push(path.join(dirname, filename));
+                }
+            }
+
+            execSync(`rm -f ${removeList.join(' ')}`);
+        } catch (err: any) {
+            logger.error(`(schedule) error: ${err.message}`);
+        }
+    });
 });
 
 // Log signal
-process.on('SIGTERM', () => {
+process.on('SIGTERM', async () => {
     logger.info('................................ GOT SIGTERM ................................');
+    await schedule.gracefulShutdown();
     process.exit(0);
 });
