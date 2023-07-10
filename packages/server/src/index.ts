@@ -56,6 +56,10 @@ server.use(apiv1);
 
 server.listen(SERVER_LISTEN_PORT, SERVER_LISTEN_HOST, () => {
     logger.info(`Server listen at port ${SERVER_LISTEN_PORT}`);
+
+    // TODO: add audio and audio-cache dir
+
+    // TODO: start sched(remove audio cache files)
 });
 
 // Log signal

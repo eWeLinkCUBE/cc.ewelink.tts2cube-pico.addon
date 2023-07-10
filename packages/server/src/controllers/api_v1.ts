@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 import express from 'express';
+import { v4 as uuid } from 'uuid';
 import _ from 'lodash';
 import logger from '../logger';
 import {
@@ -21,11 +22,15 @@ import {
     ERR_SERVER_INTERNAL,
     ERR_NO_AUDIO_ID,
     ERR_AUDIO_NOT_FOUND,
-    ERR_NO_AUDIO_FILENAME
+    ERR_NO_AUDIO_FILENAME,
+    ERR_NO_AUDIO_LANGUAGE,
+    ERR_NO_INPUT_TEXT,
+    ERR_NO_AUDIO_SAVE
 } from '../error';
-import { getAudioList, setAudioList } from '../store/audio';
+import { appendAudioRecord, getAudioList, setAudioList } from '../store/audio';
 import { getAudioFilesDir } from '../utils/etc';
 import { SERVER_LISTEN_PORT } from '../const';
+import { generateAudioFile } from '../utils/pico';
 import SSE from '../utils/sse';
 
 type ApiGetAudioListItem = {
@@ -446,6 +451,72 @@ apiv1.put('/api/v1/audio', async (req, res) => {
                 return res.send(result);
             }
         }
+    } catch (err: any) {
+        logger.error(`${logType} ${err.name}: ${err.message}`);
+        result.error = ERR_SERVER_INTERNAL;
+        result.msg = 'Server error';
+        logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+        return res.send(result);
+    }
+});
+
+// Generate audio file
+apiv1.post('/api/v1/audio', async (req, res) => {
+    const result = {
+        error: 0,
+        msg: 'Success',
+        data: {}
+    };
+    const logType = '(apiv1.generateAudioFile)';
+
+    try {
+        const audioLanguage = _.get(req, 'body.language');
+        const audioInputText = _.get(req, 'body.inputText');
+        const audioSave = _.get(req, 'body.save');
+
+        // 1. Check params
+        if (typeof audioLanguage !== 'string' || audioLanguage.trim() === '') {
+            result.error = ERR_NO_AUDIO_LANGUAGE;
+            result.msg = 'No audio language';
+            logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+            return res.send(result);
+        } else if (typeof audioInputText !== 'string' || audioInputText.trim() === '') {
+            result.error = ERR_NO_INPUT_TEXT;
+            result.msg = 'No audio input text';
+            logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+            return res.send(result);
+        } else if (typeof req.body.save !== 'boolean') {
+            result.error = ERR_NO_AUDIO_SAVE;
+            result.msg = 'No audio save';
+            logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+            return res.send(result);
+        }
+
+        // 2. Generate audio file
+        const now = Date.now();
+        const audioFilename = `${now}.wav`;
+        await generateAudioFile({
+            language: audioLanguage.trim(),
+            inputText: audioInputText.trim(),
+            audioFilename,
+            save: audioSave
+        });
+
+        // 3. Save audio record
+        if (audioSave) {
+            const audioRecord = {
+                id: uuid(),
+                filename: audioFilename,
+                text: audioInputText.trim(),
+                config: audioLanguage.trim(),
+                createdAt: now
+            };
+            await appendAudioRecord(audioRecord);
+        }
+
+        _.set(result, 'data.downloadUrl', `_audio/${audioFilename}`);
+        logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+        return res.send(result);
     } catch (err: any) {
         logger.error(`${logType} ${err.name}: ${err.message}`);
         result.error = ERR_SERVER_INTERNAL;

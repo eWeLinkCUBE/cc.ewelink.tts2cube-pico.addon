@@ -2,7 +2,7 @@
 
 import path from 'node:path';
 import { execSync } from 'node:child_process';
-import { getAudioFilesDir } from './etc';
+import { getAudioCacheFilesDir, getAudioFilesDir } from './etc';
 import logger from '../logger';
 
 /**
@@ -11,11 +11,13 @@ import logger from '../logger';
  * @param language output language, valid languages: en-US, en-GB, de-DE, es-ES, fr-FR, it-IT
  * @param audioFilename output audio file name
  * @param inputText input text
+ * @param save save audio file?
  */
 export interface GenerateAudioFileParams {
     language: string;
     audioFilename: string;
     inputText: string;
+    save: boolean;
 }
 
 /**
@@ -43,7 +45,8 @@ export function escapeText(s: string) {
  * generateAudioFile({
  *     language: 'en-US',
  *     audioFilename: 'test.wav',
- *     inputText: 'Pico TTS engine.'
+ *     inputText: 'Pico TTS engine.',
+ *     save: true
  * });
  */
 export async function generateAudioFile(params: GenerateAudioFileParams) {
@@ -53,9 +56,11 @@ export async function generateAudioFile(params: GenerateAudioFileParams) {
         const {
             language,
             audioFilename,
-            inputText
+            inputText,
+            save
         } = params;
-        const filename = path.join(getAudioFilesDir(), audioFilename);
+        const dir = save ? getAudioFilesDir() : getAudioCacheFilesDir();
+        const filename = path.join(dir, audioFilename);
         execSync(`pico2wave -l ${language} -w ${filename} "${escapeText(inputText)}"`);
         return 0;
     } catch (err: any) {

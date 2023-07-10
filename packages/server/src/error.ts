@@ -43,6 +43,21 @@ export const ERR_AUDIO_NOT_FOUND = 7;
  */
 export const ERR_NO_AUDIO_FILENAME = 8;
 
+/**
+ * No audio language
+ */
+export const ERR_NO_AUDIO_LANGUAGE = 9;
+
+/**
+ * No audio input text
+ */
+export const ERR_NO_INPUT_TEXT = 10;
+
+/**
+ * No audio save
+ */
+export const ERR_NO_AUDIO_SAVE = 11;
+
 // ----------------------------------------------------------------
 
 /**
