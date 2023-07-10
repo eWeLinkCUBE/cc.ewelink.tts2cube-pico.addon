@@ -1,5 +1,6 @@
 import process from 'node:process';
 import path from 'node:path';
+import { execSync } from 'node:child_process';
 import express from 'express';
 import log from './middlewares/log';
 import auth from './middlewares/auth';
@@ -12,7 +13,7 @@ import {
 import { initCubeApi } from './api/cube';
 import { initAudioStore } from './store/audio';
 import { printBuildinfo } from './utils/welcome';
-import { getAudioFilesDir } from './utils/etc';
+import { getAudioCacheFilesDir, getAudioFilesDir } from './utils/etc';
 
 logger.info('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ START @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
 
@@ -57,7 +58,13 @@ server.use(apiv1);
 server.listen(SERVER_LISTEN_PORT, SERVER_LISTEN_HOST, () => {
     logger.info(`Server listen at port ${SERVER_LISTEN_PORT}`);
 
-    // TODO: add audio and audio-cache dir
+    // Init audio files dir
+    const audioDir = getAudioFilesDir();
+    execSync(`mkdir -p ${audioDir}`);
+
+    // Init audio cache files dir
+    const audioCacheDir = getAudioCacheFilesDir();
+    execSync(`rm -rf ${audioCacheDir} && mkdir ${audioCacheDir}`);
 
     // TODO: start sched(remove audio cache files)
 });
