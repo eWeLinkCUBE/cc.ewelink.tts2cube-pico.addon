@@ -469,6 +469,8 @@ apiv1.post('/api/v1/audio', async (req, res) => {
     };
     const logType = '(apiv1.generateAudioFile)';
 
+    // TODO: 如果不允许创建相同的音频，则每次生成音频文件前需要查表
+
     try {
         const audioLanguage = _.get(req, 'body.language');
         const audioInputText = _.get(req, 'body.inputText');
@@ -514,7 +516,8 @@ apiv1.post('/api/v1/audio', async (req, res) => {
             await appendAudioRecord(audioRecord);
         }
 
-        _.set(result, 'data.downloadUrl', `_audio/${audioFilename}`);
+        const prefix = audioSave ? '_audio' : '_audio-cache';
+        _.set(result, 'data.downloadUrl', `${prefix}/${audioFilename}`);
         logger.info(`${logType} Result: ${JSON.stringify(result)}`);
         return res.send(result);
     } catch (err: any) {

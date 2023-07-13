@@ -54,6 +54,7 @@ server.use(express.static(path.join(process.cwd(), 'public')));
 
 // Serve audio static files.
 server.use('/_audio', express.static(getAudioFilesDir()));
+server.use('/_audio-cache', express.static(getAudioCacheFilesDir()));
 
 server.use(apiv1);
 

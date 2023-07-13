@@ -62,6 +62,15 @@
                         </template>
                         播放中
                     </a-button>
+
+                    <!-- 隐藏元素：音频播放器 -->
+                    <!-- src 属性在接口返回后填入 -->
+                    <audio
+                        ref="audioPlayer"
+                        src=""
+                        @ended="handleAudioPlayerEnded"
+                        @playing="handleAudioPlayerPlaying"
+                    ></audio>
                 </div>
             </div>
         </div>
@@ -72,7 +81,7 @@
 import { ref, onMounted } from 'vue';
 import { message } from 'ant-design-vue';
 import DescTitle from '@/components/DescTitle.vue';
-import { generateAudioFile } from '@/api';
+import { generateAudioFile, SERVER_PORT } from '@/api';
 
 /** 合成音频语言选项 */
 const LANGUAGE_OPTIONS = [
@@ -132,6 +141,8 @@ const inputText = ref('');
 const ifStoreValue = ref(true);
 /** 按钮类型 */
 const btnType = ref(BTN_TYPE_INIT);
+/** 音频播放器元素 */
+const audioPlayer = ref();
 
 const transformText = async () => {
     if (inputText.value === '') {
@@ -146,8 +157,9 @@ const transformText = async () => {
             save: ifStoreValue.value
         });
         if (res.data.error === 0) {
-            btnType.value = BTN_TYPE_PLAYING;
-            console.log(res.data.data);
+            const url = `http://${location.hostname}:${SERVER_PORT}/${res.data.data.downloadUrl}`;
+            audioPlayer.value.src = url;
+            audioPlayer.value.play();
         }
     } catch (err) {
         console.error(err);
@@ -155,11 +167,21 @@ const transformText = async () => {
 };
 
 const continuePlayAudio = () => {
+    audioPlayer.value.play();
     btnType.value = BTN_TYPE_PLAYING;
 };
 
 const pausePlayAudio = () => {
+    audioPlayer.value.pause();
     btnType.value = BTN_TYPE_PAUSED;
+};
+
+const handleAudioPlayerEnded = () => {
+    btnType.value = BTN_TYPE_INIT;
+};
+
+const handleAudioPlayerPlaying = () => {
+    btnType.value = BTN_TYPE_PLAYING;
 };
 
 onMounted(() => {
