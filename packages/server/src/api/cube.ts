@@ -144,3 +144,33 @@ export async function getCubeDeviceList() {
 
     return result;
 }
+
+// Play audio file on iHost
+export async function playAudioFile(audioUrl: string) {
+    const result = {
+        error: ERR_SUCCESS,
+        data: {},
+        msg: ''
+    };
+
+    if (!cubeApiClient) {
+        result.error = ERR_NO_CUBE_API_CLIENT;
+    } else {
+        const res = await cubeApiClient.playAudio(audioUrl);
+        logger.debug(`(cubeApi.playAudioFile) res.error: ${res.error}  ${JSON.stringify(res)}`);
+        if (res.error === 0) {
+            result.data = res.data;
+        } else if (res.error === 401) {
+            result.error = ERR_CUBE_API_TOKEN_INVALID;
+            result.msg = 'eWeLink Cube API token invalid';
+        } else if (res.error === 1000) {
+            result.error = ERR_CUBE_API_TIMEOUT;
+            result.msg = 'eWeLink Cube API request timeout';
+        } else {
+            result.error = ERR_CUBE_API_UNKNOWN;
+            result.msg = 'eWeLink Cube API unknown error';
+        }
+    }
+
+    return result;
+}

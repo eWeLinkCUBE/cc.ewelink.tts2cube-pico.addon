@@ -9,7 +9,8 @@ import {
     getCubeBridgeAt,
     getCubeDeviceList,
     getCubeTtsEngineList,
-    registerCubeTtsEngine
+    registerCubeTtsEngine,
+    playAudioFile,
 } from '../api/cube';
 import {
     getCubeToken,
@@ -253,6 +254,34 @@ apiv1.get('/api/v1/audio/list', async (req, res) => {
     }
 });
 
+// iHost interface - play audio
+apiv1.post('/api/v1/ihost/play-audio', async (req, res) => {
+    // reqAudioUrl 实际上是音频文件的文件名，真实 URL 在调用接口前拼装
+    const reqAudioUrl = _.get(req, 'body.audioUrl');
+    const logType = '(apiv1.ihost.playAudio)';
+    const result = {
+        error: 0,
+        msg: 'Success',
+        data: {}
+    };
+
+    try {
+        const host = process.env.CONFIG_CUBE_HOSTNAME;
+        const port = SERVER_LISTEN_PORT;
+        const audioUrl = `http://${host}:${port}/_audio/${reqAudioUrl}`;
+        logger.debug(`${logType} audioUrl: ${audioUrl}`);
+        const playRes = await playAudioFile(audioUrl);
+        logger.debug(`${logType} playRes: ${JSON.stringify(playRes)}`);
+        return res.send(result);
+    } catch (err: any) {
+        logger.error(`${logType} ${err.name}: ${err.message}`);
+        result.error = ERR_SERVER_INTERNAL;
+        result.msg = 'Server error';
+        logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+        return res.send(result);
+    }
+});
+
 // iHost callback - sync audio list
 apiv1.post('/api/v1/ihost/sync-audio-list', async (req, res) => {
     const reqMsgId = _.get(req, 'body.directive.header.message_id');
@@ -468,8 +497,6 @@ apiv1.post('/api/v1/audio', async (req, res) => {
         data: {}
     };
     const logType = '(apiv1.generateAudioFile)';
-
-    // TODO: 如果不允许创建相同的音频，则每次生成音频文件前需要查表
 
     try {
         const audioLanguage = _.get(req, 'body.language');

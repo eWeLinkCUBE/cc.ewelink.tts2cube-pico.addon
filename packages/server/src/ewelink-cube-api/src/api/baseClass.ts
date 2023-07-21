@@ -250,6 +250,19 @@ export default abstract class baseClass {
 	}
 
 	/**
+	 * 播放音频文件
+	 */
+	async playAudio(audioUrl: string) {
+		return await this.httpRequest({
+			path: '/media/audio-player',
+			method: EMethod.POST,
+			params: {
+				audio_url: audioUrl
+			}
+		})
+	}
+
+	/**
 	 * 设备状态更新上报
 	 */
 	async uploadDeviceState(
