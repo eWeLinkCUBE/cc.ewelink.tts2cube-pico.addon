@@ -29,6 +29,13 @@
                     :options="IF_STORE_OPTIONS"
                 ></a-radio-group>
             </div>
+            <div class="content-item flex flex-center">
+                <p class="title play-type">音频播放方式</p>
+                <a-radio-group
+                    v-model:value="audioPlayType"
+                    :options="AUDIO_PLAY_TYPE"
+                ></a-radio-group>
+            </div>
             <div class="content-item">
                 <div class="trans-play-btn-wrap">
                     <!-- 转换并播放按钮 -->
@@ -64,7 +71,7 @@
                     </a-button>
 
                     <!-- 隐藏元素：音频播放器 -->
-                    <!-- src 属性在接口返回后填入 -->
+                    <!-- src 属性在合成音频接口返回后填入 -->
                     <audio
                         ref="audioPlayer"
                         src=""
@@ -78,10 +85,17 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import { message } from 'ant-design-vue';
 import DescTitle from '@/components/DescTitle.vue';
 import { generateAudioFile, SERVER_PORT } from '@/api';
+
+const BTN_TYPE_INIT = 0;        /* 按钮类型：初始 */
+const BTN_TYPE_PLAYING = 1;     /* 按钮类型：正在播放音频 */
+const BTN_TYPE_PAUSED = 2;      /* 按钮类型：音频播放已暂停 */
+
+const PLAY_ON_BROWSER = 0;      /* 音频播放类型：在浏览器上播放 */
+const PLAY_ON_IHOST = 1;        /* 音频播放类型：在 iHost 上播放 */
 
 /** 合成音频语言选项 */
 const LANGUAGE_OPTIONS = [
@@ -129,12 +143,21 @@ const IF_STORE_OPTIONS = [
     }
 ];
 
-const BTN_TYPE_INIT = 0;       /* 按钮类型：初始 */
-const BTN_TYPE_PLAYING = 1;    /* 按钮类型：正在播放音频 */
-const BTN_TYPE_PAUSED = 2;     /* 按钮类型：音频播放已暂停 */
+/** 音频播放方式 */
+const AUDIO_PLAY_TYPE = [
+    {
+        label: '网页浏览器播放',
+        value: PLAY_ON_BROWSER
+    },
+    {
+        label: 'iHost 扬声器播放',
+        value: PLAY_ON_IHOST
+    }
+];
+
 
 /** 合成音频的语言 */
-const languageValue = ref('');
+const languageValue = ref('en-US');
 /** 合成音频所需的输入文本 */
 const inputText = ref('');
 /** 是否保存音频文件 */
@@ -143,6 +166,8 @@ const ifStoreValue = ref(true);
 const btnType = ref(BTN_TYPE_INIT);
 /** 音频播放器元素 */
 const audioPlayer = ref();
+/** 音频播放方式 */
+const audioPlayType = ref(0);
 
 const transformText = async () => {
     if (inputText.value === '') {
@@ -183,10 +208,6 @@ const handleAudioPlayerEnded = () => {
 const handleAudioPlayerPlaying = () => {
     btnType.value = BTN_TYPE_PLAYING;
 };
-
-onMounted(() => {
-    languageValue.value = 'en-US';
-});
 </script>
 
 <style lang="scss" scoped>
@@ -225,8 +246,8 @@ onMounted(() => {
         .select.language {
             min-width: 160px;
         }
-        .title.store-audio {
-            margin-right: 30px;
+        .title.store-audio, .title.play-type {
+            min-width: 180px;
         }
     }
     .content-item.flex {
