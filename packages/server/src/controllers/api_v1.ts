@@ -282,13 +282,137 @@ apiv1.post('/api/v1/ihost/play-audio', async (req, res) => {
     }
 });
 
-// iHost callback - sync audio list
-apiv1.post('/api/v1/ihost/sync-audio-list', async (req, res) => {
+// iHost callback
+apiv1.post('/api/v1/ihost/callback', async (req, res) => {
     const reqMsgId = _.get(req, 'body.directive.header.message_id');
     const reqMsgName = _.get(req, 'body.directive.header.name');
-    const logType = '(apiv1.ihost.syncAudioList))';
+    const logType = '(apiv1.ihost.callback))';
+    const host = process.env.CONFIG_CUBE_HOST;
+    const port = SERVER_LISTEN_PORT;
 
-    if (reqMsgName !== 'SyncTTSAudioList') {
+    if (reqMsgName === 'SyncTTSAudioList') {
+        // 同步音频列表
+        const result: any = {
+            event: {
+                header: {
+                    name: 'Response',
+                    message_id: reqMsgId,
+                    version: '1'
+                },
+                payload: {
+                    audio_list: []
+                }
+            }
+        };
+
+        try {
+            const dirname = getAudioFilesDir();
+            const files = await fs.readdir(dirname);
+            const audioList = await getAudioList();
+            logger.debug(`${logType} audioList: ${JSON.stringify(audioList)}`);
+
+            if (!audioList) {
+                logger.warn(`${logType} audioList is empty`);
+                logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+                return res.send(result);
+            } else {
+                for (let i = 0; i < audioList.length; i++) {
+                    if (files.includes(audioList[i].filename)) {
+                        result.event.payload.audio_list.push({
+                            url: `http://${host}:${port}/_audio/${audioList[i].filename}`,
+                            label: audioList[i].label || audioList[i].filename
+                        });
+                    }
+                }
+                logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+                return res.send(result);
+            }
+        } catch (err: any) {
+            const errRes = {
+                event: {
+                    header: {
+                        name: 'ErrorResponse',
+                        message_id: reqMsgId,
+                        version: '1'
+                    },
+                    payload: {
+                        type: 'INTERNAL_ERROR',
+                        description: `server internal error: ${err.message}`
+                    }
+                }
+            };
+            logger.error(`${logType} ${err.name}: ${err.message}`);
+            logger.info(`${logType} Result: ${JSON.stringify(errRes)}`);
+            return res.send(errRes);
+        }
+    } else if (reqMsgName === 'SynthesizeSpeech') {
+        // 合成音频文件
+        const result: any = {
+            event: {
+                header: {
+                    name: 'Response',
+                    message_id: reqMsgId,
+                    version: '1'
+                },
+                payload: {
+                    audio: {
+                        url: '',
+                        label: ''
+                    }
+                }
+            }
+        };
+
+        try {
+            const reqTtsText = _.get(req, 'body.directive.payload.text');
+            const reqTtsLabel = _.get(req, 'body.directive.payload.label');
+            const reqTtsLang = _.get(req, 'body.directive.payload.language') || 'en-US';
+
+            // 生成音频文件
+            const now = Date.now();
+            const audioFilename = `${now}.wav`;
+            await generateAudioFile({
+                language: reqTtsLang,
+                inputText: reqTtsText,
+                audioFilename,
+                save: true
+            });
+
+            // 保存音频记录
+            const record = {
+                id: uuid(),
+                filename: audioFilename,
+                text: reqTtsText.trim(),
+                config: reqTtsLang,
+                createdAt: now
+            };
+            await appendAudioRecord(record);
+
+            _.set(result, 'event.payload.audio.url', `http://${host}:${port}/_audio/${audioFilename}`);
+            _.set(result, 'event.payload.audio.label', reqTtsLabel || audioFilename);
+
+            logger.info(`${logType} Result: ${JSON.stringify(result)}`);
+            return res.send(result);
+        } catch (err: any) {
+            const errRes = {
+                event: {
+                    header: {
+                        name: 'ErrorResponse',
+                        message_id: reqMsgId,
+                        version: '1'
+                    },
+                    payload: {
+                        type: 'INTERNAL_ERROR',
+                        description: `server internal error: ${err.message}`
+                    }
+                }
+            };
+            logger.error(`${logType} ${err.name}: ${err.message}`);
+            logger.info(`${logType} Result: ${JSON.stringify(errRes)}`);
+            return res.send(errRes);
+        }
+    } else {
+        // 不支持的回调类型
         return res.send({
             event: {
                 header: {
@@ -304,60 +428,6 @@ apiv1.post('/api/v1/ihost/sync-audio-list', async (req, res) => {
         });
     }
 
-    const result: any = {
-        event: {
-            header: {
-                name: 'Response',
-                message_id: reqMsgId,
-                version: '1'
-            },
-            payload: {
-                audio_list: []
-            }
-        }
-    };
-
-    try {
-        const dirname = getAudioFilesDir();
-        const files = await fs.readdir(dirname);
-        const audioList = await getAudioList();
-        logger.debug(`${logType} audioList: ${JSON.stringify(audioList)}`);
-
-        if (!audioList) {
-            logger.warn(`${logType} audioList is empty`);
-            logger.info(`${logType} Result: ${JSON.stringify(result)}`);
-            return res.send(result);
-        } else {
-            for (let i = 0; i < audioList.length; i++) {
-                if (files.includes(audioList[i].filename)) {
-                    result.event.payload.audio_list.push({
-                        url: `http://${process.env.CONFIG_CUBE_HOSTNAME}:${SERVER_LISTEN_PORT}/_audio/${audioList[i].filename}`,
-                        label: audioList[i].label || audioList[i].filename
-                    });
-                }
-            }
-            logger.info(`${logType} Result: ${JSON.stringify(result)}`);
-            return res.send(result);
-        }
-    } catch (err: any) {
-        const errRes = {
-            event: {
-                header: {
-                    name: 'ErrorResponse',
-                    message_id: reqMsgId,
-                    version: '1'
-                },
-                payload: {
-                    type: 'INTERNAL_ERROR',
-                    description: `server internal error: ${err.message}`
-                }
-            }
-        };
-        logger.error(`${logType} ${err.name}: ${err.message}`);
-        logger.info(`${logType} Result: ${JSON.stringify(errRes)}`);
-        return res.send(errRes);
-
-    }
 });
 
 // Remove an audio list item

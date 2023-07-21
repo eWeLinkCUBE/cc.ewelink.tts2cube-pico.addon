@@ -96,7 +96,7 @@ export async function registerCubeTtsEngine() {
     } else {
         const res = await cubeApiClient.registerTtsEngine({
             serviceName: process.env.APP_NAME,
-            serviceAddr: `http://${EWELINK_CUBE_HOSTNAME}:${SERVER_LISTEN_PORT}/api/v1/ihost/sync-audio-list`
+            serviceAddr: `http://${EWELINK_CUBE_HOSTNAME}:${SERVER_LISTEN_PORT}/api/v1/ihost/callback`
         });
         logger.debug(`(cubeApi.registerTtsEngine) res: ${JSON.stringify(res)}`);
         const errType = _.get(res, 'payload.type');
