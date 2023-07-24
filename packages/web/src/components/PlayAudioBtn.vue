@@ -117,8 +117,8 @@ const playOnIhost = async () => {
     // 获取 URL 中的音频文件名
     // http://localhost:8323/_audio/1689926050739.wav
     //                             ^-----------------
-    const iFinalSlash = props.audioUrl.lastIndexOf('/');
-    const audioUrl = props.audioUrl.slice(iFinalSlash + 1);
+    const i = props.audioUrl.lastIndexOf('/');
+    const audioUrl = props.audioUrl.slice(i + 1);
     await playAudioOnIhost({ audioUrl });
 };
 

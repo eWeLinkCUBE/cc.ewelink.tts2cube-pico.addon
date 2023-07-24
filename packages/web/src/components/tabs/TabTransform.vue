@@ -9,6 +9,7 @@
                     class="select language"
                     v-model:value="languageValue"
                     :options="LANGUAGE_OPTIONS"
+                    @change="stopPlayAudio"
                 ></a-select>
             </div>
             <div class="content-item flex">
@@ -20,6 +21,7 @@
                     :rows="4"
                     showCount
                     :maxlength="500"
+                    @change="stopPlayAudio"
                 ></a-textarea>
             </div>
             <div class="content-item flex flex-center">
@@ -27,6 +29,7 @@
                 <a-radio-group
                     v-model:value="ifStoreValue"
                     :options="IF_STORE_OPTIONS"
+                    @change="stopPlayAudio"
                 ></a-radio-group>
             </div>
             <div class="content-item flex flex-center">
@@ -34,6 +37,7 @@
                 <a-radio-group
                     v-model:value="audioPlayType"
                     :options="AUDIO_PLAY_TYPE"
+                    @change="stopPlayAudio"
                 ></a-radio-group>
             </div>
             <div class="content-item">
@@ -88,7 +92,7 @@
 import { ref } from 'vue';
 import { message } from 'ant-design-vue';
 import DescTitle from '@/components/DescTitle.vue';
-import { generateAudioFile, SERVER_PORT } from '@/api';
+import { generateAudioFile, playAudioOnIhost, SERVER_PORT } from '@/api';
 
 const BTN_TYPE_INIT = 0;        /* 按钮类型：初始 */
 const BTN_TYPE_PLAYING = 1;     /* 按钮类型：正在播放音频 */
@@ -183,8 +187,17 @@ const transformText = async () => {
         });
         if (res.data.error === 0) {
             const url = `http://${location.hostname}:${SERVER_PORT}/${res.data.data.downloadUrl}`;
-            audioPlayer.value.src = url;
-            audioPlayer.value.play();
+            if (audioPlayType.value === PLAY_ON_IHOST) {
+                // 获取 URL 中的音频文件名
+                // http://localhost:8323/_audio/1689926050739.wav
+                //                             ^-----------------
+                const i = url.lastIndexOf('/');
+                const audioUrl = url.slice(i + 1);
+                await playAudioOnIhost({ audioUrl });
+            } else {
+                audioPlayer.value.src = url;
+                audioPlayer.value.play();
+            }
         }
     } catch (err) {
         console.error(err);
@@ -208,6 +221,11 @@ const handleAudioPlayerEnded = () => {
 const handleAudioPlayerPlaying = () => {
     btnType.value = BTN_TYPE_PLAYING;
 };
+
+const stopPlayAudio = () => {
+    audioPlayer.value.pause();
+    btnType.value = BTN_TYPE_INIT;
+};
 </script>
 
 <style lang="scss" scoped>
@@ -219,6 +237,11 @@ const handleAudioPlayerPlaying = () => {
         p {
             margin-bottom: 0;
             min-width: 80px;
+        }
+
+        .title::before {
+            content: "*";
+            color: #ff4d4f;
         }
 
         .textarea.input-text {
