@@ -1,6 +1,8 @@
 import { createApp } from 'vue';
 import {
     Button,
+    Dropdown,
+    Menu,
     Table,
     ConfigProvider,
     Input,
@@ -23,6 +25,8 @@ app.use(pinia);
 app.use(router);
 app.use(i18n);
 app.use(Button);
+app.use(Dropdown);
+app.use(Menu);
 app.use(Table);
 app.use(ConfigProvider);
 app.use(Input);

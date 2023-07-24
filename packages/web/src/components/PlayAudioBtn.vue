@@ -1,21 +1,34 @@
 <!-- 播放音乐的按钮 -->
 <template>
-    <div class="play-audio-btn">
-        <img v-if="switchState === 'off'" src="@/assets/play.png" alt="play button" @click="playAudio" width="27" height="27">
-        <img v-if="switchState === 'on'" src="@/assets/pause-bar.png" class="pause-bar" alt="pause button bar" width="27" height="27">
+    <a-dropdown placement="bottomRight" :trigger="['click']" :disabled="disableDropdown">
+        <div class="play-audio-btn" @click="handlePlayAudioBtnClick">
+            <img v-if="soundState === SOUND_STATE_READY" src="@/assets/play.png" alt="play button" width="27" height="27">
+            <img v-else src="@/assets/pause-bar.png" class="pause-bar" alt="pause button bar" width="27" height="27">
 
-        <a-progress
-            v-if="switchState === 'on'"
-            type="circle"
-            class="progress-bar"
-            :percent="percent"
-            :width="27"
-            :showInfo="false"
-            :strokeWidth="9"
-            strokeColor="dodgerblue"
-            @click="pauseAudio"
-        />
-    </div>
+            <a-progress
+                v-if="soundState !== SOUND_STATE_READY"
+                type="circle"
+                class="progress-bar"
+                :percent="percent"
+                :width="27"
+                :showInfo="false"
+                :strokeWidth="9"
+                strokeColor="dodgerblue"
+            />
+        </div>
+        <template #overlay>
+            <a-menu>
+                <a-menu-item @click="playOnWeb">
+                    <img class="play-icon" src="@/assets/play-on-web.png" alt="play on web">
+                    <span>网页浏览器播放</span>
+                </a-menu-item>
+                <a-menu-item @click="playOnIhost">
+                    <img class="play-icon" src="@/assets/play-on-ihost.png" alt="play on iHost">
+                    <span>iHost 扬声器播放</span>
+                </a-menu-item>
+            </a-menu>
+        </template>
+    </a-dropdown>
 </template>
 
 <script lang="ts" setup>
@@ -27,12 +40,21 @@ const props = defineProps<{
     audioUrl: string;
 }>();
 
-// State off - music off
-// State on - music on
-const switchState = ref('off');
-const percent = ref(0)
+const SOUND_STATE_READY = 0;
+const SOUND_STATE_PLAYING = 1;
+const SOUND_STATE_PAUSED = 2;
 
 const sound = useSound(props.audioUrl);
+
+// 音频状态
+const soundState = ref(SOUND_STATE_READY);
+
+// 是否禁用下拉框
+const disableDropdown = ref(false);
+
+// 音频播放进度百分比
+const percent = ref(0)
+
 // Circle bar update interval, unit ms (33 - 30FPS, 17 - 60FPS)
 const timeInterval = 17;
 
@@ -57,25 +79,40 @@ const setTimer = () => {
             // Audio file is over.
             clearTimer();
             playedTime = 0;
-            switchState.value = 'off';
+            soundState.value = SOUND_STATE_READY;
+            disableDropdown.value = false;
         }
     }, timeInterval);
 };
 
-const playAudio = () => {
-    if (!sound.duration.value) {
-        message.error('Audio file not ready');
-    } else {
-        switchState.value = 'on';
-        sound.play();
-        setTimer();
+// 处理点击事件
+const handlePlayAudioBtnClick = () => {
+    if (disableDropdown.value) {
+        if (soundState.value === SOUND_STATE_PLAYING) {
+            soundState.value = SOUND_STATE_PAUSED;
+            sound.pause();
+            clearTimer();
+        } else {
+            soundState.value = SOUND_STATE_PLAYING;
+            sound.play();
+            setTimer();
+        }
     }
 };
 
-const pauseAudio = () => {
-    switchState.value = 'off';
-    sound.pause();
-    clearTimer();
+const playOnWeb = () => {
+    if (!sound.duration.value) {
+        message.error('Audio file not ready');
+    }
+
+    disableDropdown.value = true;
+    soundState.value = SOUND_STATE_PLAYING;
+    sound.play();
+    setTimer();
+};
+
+const playOnIhost = () => {
+    console.log('play on ihost');
 };
 
 onBeforeUnmount(() => {
@@ -87,9 +124,18 @@ onBeforeUnmount(() => {
 .play-audio-btn {
     display: inline-block;
     position: relative;
+    margin-right: 20px;
+}
+.play-audio-btn:hover {
+    cursor: pointer;
 }
 
 .pause-bar {
     position: absolute;
+}
+
+.play-icon {
+    width: 26px;
+    margin-right: 8px;
 }
 </style>
