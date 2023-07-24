@@ -10,7 +10,8 @@ const enUS = {
     'configuration': 'Configuration',
     'created_time': 'Created',
     'operation': 'Action',
-    'filename_empty': 'Please enter an audio name'
+    'filename_empty': 'Please enter an audio name',
+    'this_audio_will_not_be_avail_confirm_to_proceed': 'This audio will not be available in Smart Scene after deletion. Confirm to proceed?'
 };
 
 export default enUS;

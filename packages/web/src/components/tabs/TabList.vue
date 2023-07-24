@@ -191,9 +191,8 @@ const downloadAudio = (id: string) => {
 const removeAudio = async (id: string) => {
     Modal.confirm({
         // TODO: add i18n
-        title: '是否确认删除音频文件',
         icon: createVNode(ExclamationCircleOutlined),
-        content: createVNode('div', {}, '删除后智能场景将无法使用该音频文件'),
+        content: createVNode('div', {}, i18n.global.t('this_audio_will_not_be_avail_confirm_to_proceed')),
         async onOk() {
             tableLoading.value = true;
             try {

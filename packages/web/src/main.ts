@@ -1,5 +1,6 @@
 import { createApp } from 'vue';
 import {
+    Form,
     Button,
     Dropdown,
     Menu,
@@ -24,6 +25,7 @@ const app = createApp(App);
 app.use(pinia);
 app.use(router);
 app.use(i18n);
+app.use(Form);
 app.use(Button);
 app.use(Dropdown);
 app.use(Menu);

@@ -14,15 +14,19 @@
             </div>
             <div class="content-item flex">
                 <p class="title input-text">文本</p>
-                <a-textarea
-                    class="textarea input-text"
-                    placeholder="请输入需要转换为语音的文本，输入的文本需要和选择的语言一致"
-                    v-model:value="inputText"
-                    :rows="4"
-                    showCount
-                    :maxlength="500"
-                    @change="stopPlayAudio"
-                ></a-textarea>
+                <a-form ref="textareaForm" :model="textareaFormState" :rules="textareaFormRules" style="width: 100%;">
+                    <a-form-item name="inputText" style="margin-bottom: 0;">
+                        <a-textarea
+                            class="textarea input-text"
+                            placeholder="请输入需要转换为语音的文本，输入的文本需要和选择的语言一致"
+                            v-model:value="textareaFormState.inputText"
+                            :rows="4"
+                            showCount
+                            :maxlength="500"
+                            @change="stopPlayAudio"
+                        ></a-textarea>
+                    </a-form-item>
+                </a-form>
             </div>
             <div class="content-item flex flex-center">
                 <p class="title store-audio">是否存储转换后的音频</p>
@@ -162,8 +166,6 @@ const AUDIO_PLAY_TYPE = [
 
 /** 合成音频的语言 */
 const languageValue = ref('en-US');
-/** 合成音频所需的输入文本 */
-const inputText = ref('');
 /** 是否保存音频文件 */
 const ifStoreValue = ref(true);
 /** 按钮类型 */
@@ -173,16 +175,26 @@ const audioPlayer = ref();
 /** 音频播放方式 */
 const audioPlayType = ref(0);
 
+/** 音频输入文本表单相关数据 */
+const textareaForm = ref();
+const textareaFormState = ref({ inputText: '' });
+const textareaFormRules = {
+    inputText: [
+        { required: true, message: '' }
+    ]
+};
+
 const transformText = async () => {
-    if (inputText.value === '') {
-        message.error('请输入转换文本');
+    textareaForm.value.validate();
+    if (textareaFormState.value.inputText === '') {
+        // message.error('请输入转换文本');
         return;
     }
 
     try {
         const res = await generateAudioFile({
             language: languageValue.value,
-            inputText: inputText.value,
+            inputText: textareaFormState.value.inputText,
             save: ifStoreValue.value
         });
         if (res.data.error === 0) {

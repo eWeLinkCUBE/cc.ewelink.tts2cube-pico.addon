@@ -10,7 +10,8 @@ const zhCN = {
     'configuration': '配置',
     'created_time': '时间',
     'operation': '操作',
-    'filename_empty': '音频名称不允许为空'
+    'filename_empty': '音频名称不允许为空',
+    'this_audio_will_not_be_avail_confirm_to_proceed': '是否确认删除音频文件？删除后智能场景将无法使用该音频文件。'
 };
 
 export default zhCN;
