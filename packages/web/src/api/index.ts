@@ -60,8 +60,30 @@ export async function updateAudioItem(params: { id: string; filename: string; })
     });
 }
 
+/**
+ * 生成音频文件
+ *
+ * @param params.language 生成音频的语言
+ * @param params.inputText 音频的输入文本
+ * @param params.save 是否保存
+ */
 export async function generateAudioFile(params: { language: string; inputText: string; save: boolean; }) {
     const url = '/audio';
+    return await axios({
+        method: 'POST',
+        baseURL: API_BASEURL,
+        url,
+        data: params
+    });
+}
+
+/**
+ * 在 iHost 上播放音频文件
+ *
+ * @param params.audioUrl 音频文件的 URL
+ */
+export async function playAudioOnIhost(params: { audioUrl: string }) {
+    const url = '/ihost/play-audio';
     return await axios({
         method: 'POST',
         baseURL: API_BASEURL,

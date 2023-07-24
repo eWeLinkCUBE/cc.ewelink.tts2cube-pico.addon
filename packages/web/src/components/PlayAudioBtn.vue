@@ -22,7 +22,7 @@
                     <img class="play-icon" src="@/assets/play-on-web.png" alt="play on web">
                     <span>网页浏览器播放</span>
                 </a-menu-item>
-                <a-menu-item @click="playOnIhost">
+                <a-menu-item @click="playOnIhostDebounced">
                     <img class="play-icon" src="@/assets/play-on-ihost.png" alt="play on iHost">
                     <span>iHost 扬声器播放</span>
                 </a-menu-item>
@@ -32,9 +32,11 @@
 </template>
 
 <script lang="ts" setup>
+import _ from 'lodash';
 import { ref, onBeforeUnmount } from 'vue';
 import { useSound } from '@vueuse/sound';
 import { message } from 'ant-design-vue';
+import { playAudioOnIhost } from '@/api';
 
 const props = defineProps<{
     audioUrl: string;
@@ -111,9 +113,16 @@ const playOnWeb = () => {
     setTimer();
 };
 
-const playOnIhost = () => {
-    console.log('play on ihost');
+const playOnIhost = async () => {
+    // 获取 URL 中的音频文件名
+    // http://localhost:8323/_audio/1689926050739.wav
+    //                             ^-----------------
+    const iFinalSlash = props.audioUrl.lastIndexOf('/');
+    const audioUrl = props.audioUrl.slice(iFinalSlash + 1);
+    await playAudioOnIhost({ audioUrl });
 };
+
+const playOnIhostDebounced = _.debounce(playOnIhost, 250);
 
 onBeforeUnmount(() => {
     clearTimer();
