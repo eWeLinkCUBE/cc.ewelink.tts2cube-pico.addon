@@ -60,8 +60,11 @@ export async function generateAudioFile(params: GenerateAudioFileParams) {
             save
         } = params;
         const dir = save ? getAudioFilesDir() : getAudioCacheFilesDir();
+        const tmpFilename = path.join(dir, `t${audioFilename}`);
         const filename = path.join(dir, audioFilename);
-        execSync(`pico2wave -l ${language} -w ${filename} "${escapeText(inputText)}"`);
+        execSync(`pico2wave -l ${language} -w ${tmpFilename} "${escapeText(inputText)}"`);
+        execSync(`ffmpeg -i ${tmpFilename} -loglevel 16 -vcodec copy -af "volume=10dB" ${filename}`);
+        execSync(`rm ${tmpFilename}`);
         return 0;
     } catch (err: any) {
         logger.error(`${logType} error: ${err.message}`);
