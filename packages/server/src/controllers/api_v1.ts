@@ -29,7 +29,7 @@ import {
     ERR_NO_AUDIO_SAVE
 } from '../error';
 import { appendAudioRecord, getAudioList, setAudioList } from '../store/audio';
-import { getAudioFilesDir } from '../utils/etc';
+import { existInAudioFilesDir, getAudioFilesDir } from '../utils/etc';
 import { SERVER_LISTEN_PORT } from '../const';
 import { generateAudioFile } from '../utils/pico';
 import SSE from '../utils/sse';
@@ -268,7 +268,8 @@ apiv1.post('/api/v1/ihost/play-audio', async (req, res) => {
     try {
         const host = process.env.CONFIG_CUBE_HOSTNAME;
         const port = SERVER_LISTEN_PORT;
-        const audioUrl = `http://${host}:${port}/_audio/${reqAudioUrl}`;
+        const dir = existInAudioFilesDir(reqAudioUrl) ? '_audio' : '_audio-cache';
+        const audioUrl = `http://${host}:${port}/${dir}/${reqAudioUrl}`;
         logger.debug(`${logType} audioUrl: ${audioUrl}`);
         const playRes = await playAudioFile(audioUrl);
         logger.debug(`${logType} playRes: ${JSON.stringify(playRes)}`);
@@ -287,7 +288,7 @@ apiv1.post('/api/v1/ihost/callback', async (req, res) => {
     const reqMsgId = _.get(req, 'body.directive.header.message_id');
     const reqMsgName = _.get(req, 'body.directive.header.name');
     const logType = '(apiv1.ihost.callback))';
-    const host = process.env.CONFIG_CUBE_HOST;
+    const host = process.env.CONFIG_CUBE_HOSTNAME;
     const port = SERVER_LISTEN_PORT;
 
     if (reqMsgName === 'SyncTTSAudioList') {
