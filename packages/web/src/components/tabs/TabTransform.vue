@@ -1,10 +1,10 @@
 <!-- 文本转语音栏 -->
 <template>
     <div class="tab-transform">
-        <DescTitle header="语音合成" description="输入一段文本，转换为语音播报" />
+        <DescTitle :header="i18n.global.t('speech_synthesis')" :description="i18n.global.t('enter_some_text_and_convert_it_to_speech')" />
         <div class="content">
             <div class="content-item flex flex-center">
-                <p class="title">语言</p>
+                <p class="title">{{ $t('language') }}</p>
                 <a-select
                     class="select language"
                     v-model:value="languageValue"
@@ -13,12 +13,12 @@
                 ></a-select>
             </div>
             <div class="content-item flex">
-                <p class="title input-text">文本</p>
+                <p class="title input-text">{{ $t('text') }}</p>
                 <a-form ref="textareaForm" :model="textareaFormState" :rules="textareaFormRules" style="width: 100%;">
                     <a-form-item name="inputText" style="margin-bottom: 0;">
                         <a-textarea
                             class="textarea input-text"
-                            placeholder="请输入需要转换为语音的文本，输入的文本需要和选择的语言一致"
+                            :placeholder="i18n.global.t('enter_text_in_the_selected_language')"
                             v-model:value="textareaFormState.inputText"
                             :rows="4"
                             showCount
@@ -29,7 +29,7 @@
                 </a-form>
             </div>
             <div class="content-item flex flex-center">
-                <p class="title store-audio">是否存储转换后的音频</p>
+                <p class="title store-audio">{{ $t('confirm_to_save_the_converted_audio') }}</p>
                 <a-radio-group
                     v-model:value="ifStoreValue"
                     :options="IF_STORE_OPTIONS"
@@ -37,7 +37,7 @@
                 ></a-radio-group>
             </div>
             <div class="content-item flex flex-center">
-                <p class="title play-type">音频播放方式</p>
+                <p class="title play-type">{{ $t('play_audio_using') }}</p>
                 <a-radio-group
                     v-model:value="audioPlayType"
                     :options="AUDIO_PLAY_TYPE"
@@ -52,7 +52,7 @@
                         class="trans-play-btn"
                         type="primary"
                         @click="transformText"
-                    >转换并播放</a-button>
+                    >{{ $t('convert_and_play') }}</a-button>
 
                     <!-- 恢复播放按钮 -->
                     <a-button
@@ -63,7 +63,7 @@
                         <template #icon>
                             <img src="@/assets/play.png" class="play-icon" alt="play icon">
                         </template>
-                        恢复播放
+                        {{ $t('play') }}
                     </a-button>
 
                     <!-- 播放中按钮 -->
@@ -75,7 +75,7 @@
                         <template #icon>
                             <img src="@/assets/playing.gif" class="playing-icon" alt="playing icon">
                         </template>
-                        播放中
+                        {{ $t('playing') }}
                     </a-button>
 
                     <!-- 隐藏元素：音频播放器 -->
@@ -94,9 +94,9 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { message } from 'ant-design-vue';
 import DescTitle from '@/components/DescTitle.vue';
 import { generateAudioFile, playAudioOnIhost, SERVER_PORT } from '@/api';
+import i18n from '@/i18n';
 
 const BTN_TYPE_INIT = 0;        /* 按钮类型：初始 */
 const BTN_TYPE_PLAYING = 1;     /* 按钮类型：正在播放音频 */
@@ -110,43 +110,43 @@ const LANGUAGE_OPTIONS = [
     {
         key: 0,
         value: 'en-US',
-        label: '英语（美国）'
+        label: i18n.global.t('american_english')
     },
     {
         key: 1,
         value: 'en-GB',
-        label: '英语（英国）'
+        label: i18n.global.t('british_english')
     },
     {
         key: 2,
         value: 'de-DE',
-        label: '德语'
+        label: i18n.global.t('german_germany')
     },
     {
         key: 3,
         value: 'es-ES',
-        label: '西班牙语'
+        label: i18n.global.t('european_spanish')
     },
     {
         key: 4,
         value: 'fr-FR',
-        label: '法语'
+        label: i18n.global.t('french_france')
     },
     {
         key: 5,
         value: 'it-IT',
-        label: '意大利语'
+        label: i18n.global.t('italian_italy')
     }
 ];
 
 /** 是否存储音频选项 */
 const IF_STORE_OPTIONS = [
     {
-        label: '是',
+        label: i18n.global.t('yes'),
         value: true
     },
     {
-        label: '否',
+        label: i18n.global.t('no'),
         value: false
     }
 ];
@@ -154,11 +154,11 @@ const IF_STORE_OPTIONS = [
 /** 音频播放方式 */
 const AUDIO_PLAY_TYPE = [
     {
-        label: '网页浏览器播放',
+        label: i18n.global.t('web_browser'),
         value: PLAY_ON_BROWSER
     },
     {
-        label: 'iHost 扬声器播放',
+        label: i18n.global.t('ihost_speaker'),
         value: PLAY_ON_IHOST
     }
 ];
@@ -187,7 +187,6 @@ const textareaFormRules = {
 const transformText = async () => {
     textareaForm.value.validate();
     if (textareaFormState.value.inputText === '') {
-        // message.error('请输入转换文本');
         return;
     }
 
@@ -282,7 +281,8 @@ const stopPlayAudio = () => {
             min-width: 160px;
         }
         .title.store-audio, .title.play-type {
-            min-width: 180px;
+            min-width: 160px;
+            margin-right: 20px;
         }
     }
     .content-item.flex {

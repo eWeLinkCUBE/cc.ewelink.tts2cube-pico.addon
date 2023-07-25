@@ -20,11 +20,11 @@
             <a-menu>
                 <a-menu-item @click="playOnWeb">
                     <img class="play-icon" src="@/assets/play-on-web.png" alt="play on web">
-                    <span>网页浏览器播放</span>
+                    <span>{{ $t('web_browser') }}</span>
                 </a-menu-item>
                 <a-menu-item @click="playOnIhostDebounced">
                     <img class="play-icon" src="@/assets/play-on-ihost.png" alt="play on iHost">
-                    <span>iHost 扬声器播放</span>
+                    <span>{{ $t('ihost_speaker') }}</span>
                 </a-menu-item>
             </a-menu>
         </template>

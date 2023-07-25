@@ -11,7 +11,26 @@ const enUS = {
     'created_time': 'Created',
     'operation': 'Action',
     'filename_empty': 'Please enter an audio name',
-    'this_audio_will_not_be_avail_confirm_to_proceed': 'This audio will not be available in Smart Scene after deletion. Confirm to proceed?'
+    'this_audio_will_not_be_avail_confirm_to_proceed': 'This audio will not be available in Smart Scene after deletion. Confirm to proceed?',
+    'play_audio_using': 'Play Audio Using',
+    'web_browser': 'Web Browser',
+    'ihost_speaker': 'iHost Speaker',
+    'confirm_to_save_the_converted_audio': 'Confirm to save the converted audio?',
+    'yes': 'Yes',
+    'no': 'No',
+    'language': 'Language',
+    'speech_synthesis': 'Speech synthesis',
+    'enter_some_text_and_convert_it_to_speech': 'Enter some text and convert it to speech.',
+    'enter_text_in_the_selected_language': 'Enter text in the selected language.',
+    'convert_and_play': 'Convert and play',
+    'play': 'Play',
+    'playing': 'Playing',
+    'american_english': 'American English',
+    'british_english': 'British English',
+    'european_spanish': 'European Spanish',
+    'french_france': 'French (France)',
+    'german_germany': 'German (Germany)',
+    'italian_italy': 'Italian (Italy)'
 };
 
 export default enUS;

@@ -113,6 +113,23 @@ const editableData = reactive({}) as any;
 // 表格是否正在加载中
 const tableLoading = ref(false);
 
+// 解析语言
+const parseLang = (lang: string) => {
+    let result = '';
+
+    switch (lang) {
+        case 'en-US': result = i18n.global.t('american_english');   break;
+        case 'en-GB': result = i18n.global.t('british_english');    break;
+        case 'de-DE': result = i18n.global.t('german_germany');     break;
+        case 'es-ES': result = i18n.global.t('european_spanish');   break;
+        case 'fr-FR': result = i18n.global.t('french_france');      break;
+        case 'it-IT': result = i18n.global.t('italian_italy');      break;
+        default: break;
+    }
+
+    return result;
+};
+
 // 解析后端返回的表格数据
 const parseTableData = (data: TableDataItem[]) => {
     const result = [];
@@ -120,6 +137,7 @@ const parseTableData = (data: TableDataItem[]) => {
         const timeObj = new Date(item.time);
         item.time = dayjs(timeObj).format('YYYY/MM/DD');
         item.url = `http://${location.hostname}:${SERVER_PORT}/${item.downloadUrl}`;
+        item.config = parseLang(item.config);
         result.push(item);
     }
     return result;
