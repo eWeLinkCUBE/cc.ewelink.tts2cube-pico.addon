@@ -79,28 +79,33 @@ const columns = [
     {
         title: i18n.global.t('file_name'),
         dataIndex: 'filename',
-        width: '25%',
+        width: '200',
+        align: 'left'
     },
     {
         title: i18n.global.t('text'),
         dataIndex: 'text',
-        width: '35%',
-        ellipsis: true
+        width: '45%',
+        ellipsis: true,
+        align: 'left'
     },
     {
         title: i18n.global.t('configuration'),
         dataIndex: 'config',
-        width: '150'
+        width: '150',
+        align: 'left'
     },
     {
         title: i18n.global.t('created_time'),
         dataIndex: 'time',
-        width: '150'
+        width: '150',
+        align: 'left'
     },
     {
         title: i18n.global.t('operation'),
         dataIndex: 'operation',
-        width: '150'
+        width: '150',
+        align: 'left'
     }
 ];
 
@@ -241,6 +246,7 @@ onMounted(async () => {
 <style lang="scss" scoped>
 .tab-list {
     .table {
+        padding: 0 8px;
 
         .operation-icon:not(:last-child) {
             width: 27px;
@@ -262,7 +268,7 @@ onMounted(async () => {
   }
 
   .editable-cell-text-wrapper {
-    padding: 5px 24px 5px 5px;
+    padding: 5px 24px 0 0;
   }
 
   .editable-cell-icon,
