@@ -85,6 +85,7 @@
                         src=""
                         @ended="handleAudioPlayerEnded"
                         @playing="handleAudioPlayerPlaying"
+                        @canplay="handleAudioCanPlay"
                     ></audio>
                 </div>
             </div>
@@ -94,6 +95,7 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
+import { message } from 'ant-design-vue';
 import DescTitle from '@/components/DescTitle.vue';
 import { generateAudioFile, playAudioOnIhost, SERVER_PORT } from '@/api';
 import i18n from '@/i18n';
@@ -180,7 +182,7 @@ const textareaForm = ref();
 const textareaFormState = ref({ inputText: '' });
 const textareaFormRules = {
     inputText: [
-        { required: true, message: '' }
+        { required: true }
     ]
 };
 
@@ -231,6 +233,13 @@ const handleAudioPlayerEnded = () => {
 
 const handleAudioPlayerPlaying = () => {
     btnType.value = BTN_TYPE_PLAYING;
+};
+
+const handleAudioCanPlay = (e: any) => {
+    if (e.target.duration === 0) {
+        // 音频文件不可播放
+        message.error('音频无法播放');
+    }
 };
 
 const stopPlayAudio = () => {
@@ -291,5 +300,10 @@ const stopPlayAudio = () => {
     .content-item.flex-center {
         align-items: center;
     }
+}
+
+// 隐藏 antd 默认的报错提示文本
+:deep(.ant-form-item-explain.ant-form-item-explain-connected) {
+    display: none;
 }
 </style>

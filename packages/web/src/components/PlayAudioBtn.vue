@@ -104,7 +104,8 @@ const handlePlayAudioBtnClick = () => {
 
 const playOnWeb = () => {
     if (!sound.duration.value) {
-        message.error('Audio file not ready');
+        message.error('音频无法播放');
+        return;
     }
 
     disableDropdown.value = true;

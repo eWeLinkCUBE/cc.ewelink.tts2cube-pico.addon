@@ -29,7 +29,7 @@ export const TAB_LIST = [
 export const useTabStore = defineStore('tab', {
     state: () => {
         return {
-            currentTabName: TAB_NAME_LIST,  // 当前功能 tab 名称
+            currentTabName: TAB_NAME_TRANSFORM,  // 当前功能 tab 名称
         };
     },
     actions: {
@@ -37,5 +37,5 @@ export const useTabStore = defineStore('tab', {
             this.currentTabName = tabName;
         }
     },
-    persist: true
+    // persist: true
 });
