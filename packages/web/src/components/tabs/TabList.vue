@@ -31,24 +31,44 @@
                     <template v-else-if="column.dataIndex === 'operation'">
                         <PlayAudioBtn class="operation-icon" :audio-url="record.url" />
                         <img class="operation-icon" @click="() => downloadAudio(record.id)" src="@/assets/download.png" alt="download icon">
-                        <img class="operation-icon" @click="() => removeAudio(record.id)" src="@/assets/delete.png" alt="delete icon">
+                        <img class="operation-icon" @click="() => openModal(record.id)" src="@/assets/delete.png" alt="delete icon">
                     </template>
                 </template>
             </a-table>
         </div>
+
+        <!-- 删除音频提示弹框 -->
+        <a-modal v-model:visible="modalVisible" :closable="false" width="420px" centered class="Modal">
+            <template #title>
+                <div class="Modal-title-wrap">
+                    <ExclamationCircleFilled class="Modal-title-icon" />
+                </div>
+            </template>
+
+            <div class="dismiss-content">
+                <div class="tip-message">{{ $t('this_audio_will_not_be_avail_confirm_to_proceed') }}</div>
+            </div>
+
+            <template #footer>
+                <div class="Modal-button-group">
+                    <a-button @click="closeModal">{{ $t('cancel') }}</a-button>
+                    <a-button type="primary" @click="removeAudio">{{ $t('done') }}</a-button>
+                </div>
+            </template>
+        </a-modal>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, reactive, createVNode } from 'vue';
+import { ref, onMounted, reactive } from 'vue';
 import { saveAs } from 'file-saver';
 import dayjs from 'dayjs';
 import {
     CheckOutlined,
     EditOutlined,
-    ExclamationCircleOutlined
+    ExclamationCircleFilled
 } from '@ant-design/icons-vue';
-import { Modal, message } from 'ant-design-vue';
+import { message } from 'ant-design-vue';
 import _ from 'lodash';
 import DescTitle from '@/components/DescTitle.vue';
 import PlayAudioBtn from '@/components/PlayAudioBtn.vue';
@@ -79,7 +99,7 @@ const columns = [
     {
         title: i18n.global.t('file_name'),
         dataIndex: 'filename',
-        width: '200',
+        width: '240',
         align: 'left'
     },
     {
@@ -117,6 +137,12 @@ const editableData = reactive({}) as any;
 
 // 表格是否正在加载中
 const tableLoading = ref(false);
+
+// 删除音频弹框是否可见
+const modalVisible = ref(false);
+
+// 被删除音频文件 ID
+const removeAudioId = ref('');
 
 // 解析语言
 const parseLang = (lang: string) => {
@@ -211,25 +237,28 @@ const downloadAudio = (id: string) => {
     saveAs(audio.url, audio.filename);
 };
 
+const closeModal = () => {
+    modalVisible.value = false;
+};
+
+const openModal = (id: string) => {
+    removeAudioId.value = id;
+    modalVisible.value = true;
+};
+
 // 删除音频文件
-const removeAudio = async (id: string) => {
-    Modal.confirm({
-        // TODO: add i18n
-        icon: createVNode(ExclamationCircleOutlined),
-        content: createVNode('div', {}, i18n.global.t('this_audio_will_not_be_avail_confirm_to_proceed')),
-        async onOk() {
-            tableLoading.value = true;
-            try {
-                await removeAudioItem(id);
-                await getTableData();
-            } catch (err: any) {
-                const errContent = `${err.name}: ${err.message}`;
-                message.error(errContent);
-                console.error(`removeAudio: ${errContent}`)
-            }
-            tableLoading.value = false;
-        }
-    });
+const removeAudio = async () => {
+    tableLoading.value = true;
+    try {
+        await removeAudioItem(removeAudioId.value);
+        await getTableData();
+    } catch (err: any) {
+        const errContent = `${err.name}: ${err.message}`;
+        message.error(errContent);
+        console.error(`removeAudio: ${errContent}`)
+    }
+    tableLoading.value = false;
+    closeModal();
 };
 
 onMounted(async () => {
@@ -308,5 +337,143 @@ onMounted(async () => {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+}
+</style>
+
+<style lang="scss">
+/* -------------------------------->8-------------------------------- */
+// 自定义弹框样式
+.Modal {
+
+    .Modal-title-wrap {
+        display: flex;
+        justify-content: center;
+
+        .Modal-title {
+            font-weight: 600;
+            font-size: 20px;
+            color: #424242;
+        }
+
+        .Modal-title-icon {
+            color: #F2CB51;
+            font-size: 76px;
+            margin-top: 24px;
+        }
+
+        .Modal-title-icon-success {
+            color: #20b759;
+            font-size: 76px;
+        }
+    }
+
+
+
+    .Modal-content {
+        font-size: 16px;
+        font-weight: bold;
+        color: #424242;
+        text-align: center;
+    }
+
+    .Modal-button-group {
+        display: flex;
+        justify-content: center;
+        gap: 58px;
+
+        .ant-btn {
+            width: 120px;
+            height: 40px;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+    }
+
+    .ant-modal-close-x {
+        width: 70px;
+        font-size: 23px;
+    }
+
+    //ant-modal弹框定制
+
+    .ant-modal-content {
+        border-radius: 8px;
+    }
+
+    .ant-modal-body {
+        padding: 24px;
+        max-height: 660px;
+        overflow-y: auto;
+    }
+
+    .ant-modal-header {
+        border-bottom: none;
+        border-radius: 8px;
+        padding-bottom: 0;
+    }
+
+    .ant-modal-footer {
+        border-top: none;
+        padding:0 16px 20px;
+    }
+
+
+    .ant-modal-body::-webkit-scrollbar {
+        /*滚动条整体样式*/
+        width: 8px;
+        /*高宽分别对应横竖滚动条的尺寸*/
+        height: 8px;
+    }
+
+    .ant-modal-body::-webkit-scrollbar-thumb {
+        /*滚动条里面小方块*/
+        border-radius: 5px;
+        -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    .ant-modal-body::-webkit-scrollbar-track {
+        /*滚动条里面轨道*/
+        -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+        border-radius: 0;
+        background: rgba(0, 0, 0, 0.1);
+    }
+}
+
+.ant-modal-content {
+    border-radius: 8px;
+}
+
+//docker固件升级的弹窗样式
+.update-comp-modal{
+    .ant-modal-content{
+        border-radius: 4px;
+        overflow: hidden;
+    }
+   .ant-modal-body{
+        padding: 0;
+    }
+
+    .ant-modal-header{
+        padding: 0;
+    }
+
+    .ant-modal-footer{
+        padding: 0;
+    }
+
+
+}
+
+.addModal{
+    .ant-modal-body {
+        max-height: 535px!important;
+    }
+}
+
+.add-volume-modal{
+    .ant-modal-body {
+        padding:0 24px!important;
+    }
 }
 </style>

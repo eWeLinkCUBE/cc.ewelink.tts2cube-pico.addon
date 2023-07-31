@@ -270,7 +270,7 @@ const stopPlayAudio = () => {
             margin-bottom: 20px;
         }
         .trans-play-btn-wrap {
-            margin-top: 150px;
+            margin-top: 80px;
             text-align: center;
 
             .trans-play-btn {

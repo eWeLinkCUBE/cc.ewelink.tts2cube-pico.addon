@@ -30,7 +30,9 @@ const zhCN = {
     'european_spanish': '西班牙语',
     'french_france': '法语',
     'german_germany': '德语',
-    'italian_italy': '意大利语'
+    'italian_italy': '意大利语',
+    'done': '确认',
+    'cancel': '取消'
 };
 
 export default zhCN;

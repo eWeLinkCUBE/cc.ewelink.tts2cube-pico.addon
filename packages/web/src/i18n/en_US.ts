@@ -30,7 +30,9 @@ const enUS = {
     'european_spanish': 'European Spanish',
     'french_france': 'French (France)',
     'german_germany': 'German (Germany)',
-    'italian_italy': 'Italian (Italy)'
+    'italian_italy': 'Italian (Italy)',
+    'done': 'Done',
+    'cancel': 'Cancel'
 };
 
 export default enUS;

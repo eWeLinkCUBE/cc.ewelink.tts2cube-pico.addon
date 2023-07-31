@@ -10,7 +10,8 @@ import {
     Carousel,
     Select,
     Radio,
-    Progress
+    Progress,
+    Modal
 } from 'ant-design-vue';
 
 import App from './App.vue';
@@ -36,5 +37,6 @@ app.use(Carousel);
 app.use(Progress);
 app.use(Select);
 app.use(Radio);
+app.use(Modal);
 
 app.mount('#app');
