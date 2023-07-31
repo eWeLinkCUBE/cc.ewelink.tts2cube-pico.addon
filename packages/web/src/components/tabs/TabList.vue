@@ -145,7 +145,8 @@ const parseTableData = (data: TableDataItem[]) => {
         item.config = parseLang(item.config);
         result.push(item);
     }
-    return result;
+    // 优先显示新生成的音频
+    return result.reverse();
 };
 
 // 获取表格数据
