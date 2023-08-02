@@ -32,7 +32,8 @@ const enUS = {
     'german_germany': 'German (Germany)',
     'italian_italy': 'Italian (Italy)',
     'done': 'Done',
-    'cancel': 'Cancel'
+    'cancel': 'Cancel',
+    'play_failed': 'Play failed'
 };
 
 export default enUS;

@@ -37,6 +37,7 @@ import { ref, onBeforeUnmount } from 'vue';
 import { useSound } from '@vueuse/sound';
 import { message } from 'ant-design-vue';
 import { playAudioOnIhost } from '@/api';
+import i18n from '@/i18n';
 
 const props = defineProps<{
     audioUrl: string;
@@ -104,7 +105,7 @@ const handlePlayAudioBtnClick = () => {
 
 const playOnWeb = () => {
     if (!sound.duration.value) {
-        message.error('音频无法播放');
+        message.error(i18n.global.t('play_failed'));
         return;
     }
 

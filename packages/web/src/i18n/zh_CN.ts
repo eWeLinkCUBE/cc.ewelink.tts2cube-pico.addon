@@ -32,7 +32,8 @@ const zhCN = {
     'german_germany': '德语',
     'italian_italy': '意大利语',
     'done': '确认',
-    'cancel': '取消'
+    'cancel': '取消',
+    'play_failed': '音频无法播放'
 };
 
 export default zhCN;

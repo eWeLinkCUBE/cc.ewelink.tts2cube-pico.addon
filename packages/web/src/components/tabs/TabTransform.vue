@@ -238,7 +238,7 @@ const handleAudioPlayerPlaying = () => {
 const handleAudioCanPlay = (e: any) => {
     if (e.target.duration === 0) {
         // 音频文件不可播放
-        message.error('音频无法播放');
+        message.error(i18n.global.t('play_failed'));
     }
 };
 
@@ -270,7 +270,7 @@ const stopPlayAudio = () => {
             margin-bottom: 20px;
         }
         .trans-play-btn-wrap {
-            margin-top: 80px;
+            margin-top: 48px;
             text-align: center;
 
             .trans-play-btn {
