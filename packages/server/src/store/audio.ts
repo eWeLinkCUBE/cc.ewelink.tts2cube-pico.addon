@@ -65,10 +65,10 @@ export async function getAudioList(): Promise<AudioItem[] | undefined> {
     return await audioStore.get('audioList');
 }
 
-export async function appendAudioRecord(audioRecord: AudioItem) {
+export async function addAudioRecord(audioRecord: AudioItem) {
     let audioList = await audioStore.get('audioList');
     if (audioList && Array.isArray(audioList)) {
-        audioList.push(audioRecord);
+        audioList.unshift(audioRecord);
     } else {
         audioList = [audioRecord];
     }

@@ -28,7 +28,7 @@ import {
     ERR_NO_INPUT_TEXT,
     ERR_NO_AUDIO_SAVE
 } from '../error';
-import { appendAudioRecord, getAudioList, setAudioList } from '../store/audio';
+import { addAudioRecord, getAudioList, setAudioList } from '../store/audio';
 import { existInAudioFilesDir, getAudioFilesDir } from '../utils/etc';
 import { SERVER_LISTEN_PORT } from '../const';
 import { generateAudioFile } from '../utils/pico';
@@ -387,7 +387,7 @@ apiv1.post('/api/v1/ihost/callback', async (req, res) => {
                 config: reqTtsLang,
                 createdAt: now
             };
-            await appendAudioRecord(record);
+            await addAudioRecord(record);
 
             _.set(result, 'event.payload.audio.url', `http://${host}:${port}/_audio/${audioFilename}`);
             _.set(result, 'event.payload.audio.label', reqTtsLabel || audioFilename);
@@ -611,7 +611,7 @@ apiv1.post('/api/v1/audio', async (req, res) => {
                 config: audioLanguage.trim(),
                 createdAt: now
             };
-            await appendAudioRecord(audioRecord);
+            await addAudioRecord(audioRecord);
         }
 
         const prefix = audioSave ? '_audio' : '_audio-cache';
