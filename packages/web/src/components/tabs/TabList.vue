@@ -99,33 +99,28 @@ const columns = [
     {
         title: i18n.global.t('file_name'),
         dataIndex: 'filename',
-        width: '240',
-        align: 'left'
+        width: 180
     },
     {
         title: i18n.global.t('text'),
         dataIndex: 'text',
-        width: '45%',
         ellipsis: true,
-        align: 'left'
     },
     {
         title: i18n.global.t('configuration'),
         dataIndex: 'config',
-        width: '150',
-        align: 'left'
+        ellipsis: true,
+        width: 145
     },
     {
         title: i18n.global.t('created_time'),
         dataIndex: 'time',
-        width: '150',
-        align: 'left'
+        width: 110
     },
     {
         title: i18n.global.t('operation'),
         dataIndex: 'operation',
-        width: '150',
-        align: 'left'
+        width: 140
     }
 ];
 
