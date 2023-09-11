@@ -1,6 +1,6 @@
 # TTS2CUBE-Pico
 
-TTS2CUBE-Pico addon.
+TTS2CUBE-Pico is a text-to-speech service provided by Pico, which supports offline conversion. The converted voice files can be played through the browser or through the device speakers. The saved voice files can be played by the hardware speakers through linkage in the scene of eWeLink CUBE.
 
 ## Development
 
